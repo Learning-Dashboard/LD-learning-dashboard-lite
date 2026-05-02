@@ -312,54 +312,6 @@ public class Factors {
         }
     }
 
-    @RequestMapping("/api/qualityFactors/prediction")
-    @ResponseStatus(HttpStatus.OK)
-    public List<DTOFactorEvaluation> getQualityFactorsPredictionData(@RequestParam(value = "prj") String prj, @RequestParam(value = "profile", required = false) String profile, @RequestParam("technique") String technique, @RequestParam("horizon") String horizon) throws IOException {
-        try {
-            List<DTOFactorEvaluation> currentEvaluation = factorsController.getAllFactorsEvaluation(prj, profile,true);
-            return factorsController.getFactorsPrediction(currentEvaluation, prj, technique, "7", horizon);
-        } catch (MongoException e) {
-            logger.error(e.getMessage(), e);
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format(Messages.PROJECT_NOT_FOUND, prj));
-        } catch (IOException e) {
-            logger.error(e.getMessage(), e);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, Messages.INTERNAL_SERVER_ERROR + e.getMessage());
-        }
-    }
-
-    @GetMapping("/api/qualityFactors/metrics/prediction")
-    @ResponseStatus(HttpStatus.OK)
-    public List<DTODetailedFactorEvaluation> getQualityFactorsPrediction(@RequestParam(value = "prj") String prj, @RequestParam(value = "profile", required = false) String profile, @RequestParam("technique") String technique, @RequestParam("horizon") String horizon) {
-        try {
-            List<DTODetailedFactorEvaluation> currentEvaluation = factorsController.getAllFactorsWithMetricsCurrentEvaluation(prj, profile, true);
-            return factorsController.getFactorsWithMetricsPrediction(currentEvaluation, technique, "7", horizon, prj);
-        } catch (MongoException e) {
-            logger.error(e.getMessage(), e);
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format(Messages.PROJECT_NOT_FOUND, prj));
-        } catch (IOException | ProjectNotFoundException e) {
-            logger.error(e.getMessage(), e);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, Messages.INTERNAL_SERVER_ERROR + e.getMessage());
-        }
-    }
-
-    @PostMapping("/api/qualityFactors/simulate")
-    @ResponseStatus(HttpStatus.OK)
-    public List<DTOFactorEvaluation> simulate (@RequestParam("prj") String prj, @RequestParam("date") String date, @RequestBody List<DTOMetricEvaluation> metrics, @RequestParam(value = "profile", required=false) String profile) {
-        try {
-            Map<String, Float> metricsMap = new HashMap<>();
-            for (DTOMetricEvaluation metric : metrics) {
-                metricsMap.put(metric.getId(), metric.getValue());
-            }
-            return factorsController.simulate(metricsMap, prj, profile, LocalDate.parse(date));
-        } catch (MongoException e) {
-            logger.error(e.getMessage(), e);
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format(Messages.PROJECT_NOT_FOUND, prj));
-        } catch (IOException e) {
-            logger.error(e.getMessage(), e);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, Messages.INTERNAL_SERVER_ERROR + e.getMessage());
-        }
-    }
-
     @RequestMapping("/api/qualityFactors/{id}/metrics/current")
     @ResponseStatus(HttpStatus.OK)
     public List<DTODetailedFactorEvaluation> getMetricsCurrentEvaluationForQualityFactor(@RequestParam(value = "prj") String prj, @PathVariable String id) {
@@ -389,25 +341,6 @@ public class Factors {
             DTOFactorEvaluation f = factorsController.getSingleFactorEvaluation(id,prj);
             List<DTODetailedFactorEvaluation> result = new ArrayList<>();
             result.add(new DTODetailedFactorEvaluation(id,f.getDescription(),f.getName(),metrics, f.getType()));
-            return result;
-        } catch (MongoException e) {
-            logger.error(e.getMessage(), e);
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format(Messages.PROJECT_NOT_FOUND, prj));
-        } catch (IOException e) {
-            logger.error(e.getMessage(), e);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, Messages.INTERNAL_SERVER_ERROR + e.getMessage());
-        }
-    }
-
-    @RequestMapping("/api/qualityFactors/{id}/metrics/prediction")
-    @ResponseStatus(HttpStatus.OK)
-    public List<DTODetailedFactorEvaluation> getMetricsPredictionData(@RequestParam(value = "prj") String prj, @RequestParam("technique") String technique, @RequestParam("horizon") String horizon, @PathVariable String id) {
-        try {
-            List<DTOMetricEvaluation> currentEvaluation = metricsController.getMetricsForQualityFactorCurrentEvaluation(id, prj);
-            List<DTOMetricEvaluation> metrics = metricsController.getMetricsPrediction(currentEvaluation, prj, technique, "7", horizon);
-            DTOFactorEvaluation f = factorsController.getSingleFactorEvaluation(id,prj);
-            List<DTODetailedFactorEvaluation> result = new ArrayList<>();
-            result.add(new DTODetailedFactorEvaluation(id,f.getDescription(), f.getName(),metrics,f.getType()));
             return result;
         } catch (MongoException e) {
             logger.error(e.getMessage(), e);

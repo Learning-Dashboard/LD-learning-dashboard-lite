@@ -40,8 +40,4 @@ public class DetailedQualityFactorController {
         return "DetailedQualityFactors/HistoricChart";
     }
 
-    @RequestMapping("/DetailedQualityFactors/PredictionChart")
-    public String PredictionChart(){
-        return "DetailedQualityFactors/PredictionChart";
-    }
 }

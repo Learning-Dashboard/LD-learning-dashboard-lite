@@ -3,7 +3,6 @@ package com.upc.gessi.qrapids.app.domain.controllers;
 import com.mongodb.MongoException;
 
 import com.upc.gessi.qrapids.app.domain.adapters.AssesSI;
-import com.upc.gessi.qrapids.app.domain.adapters.Forecast;
 import com.upc.gessi.qrapids.app.domain.adapters.QMA.QMADetailedStrategicIndicators;
 import com.upc.gessi.qrapids.app.domain.adapters.QMA.QMARelations;
 import com.upc.gessi.qrapids.app.domain.adapters.QMA.QMAStrategicIndicators;
@@ -42,9 +41,6 @@ public class StrategicIndicatorsController {
 
     @Autowired
     private QMAStrategicIndicators qmaStrategicIndicators;
-
-    @Autowired
-    private Forecast qmaForecast;
 
     @Autowired
     private QMADetailedStrategicIndicators qmaDetailedStrategicIndicators;
@@ -289,94 +285,6 @@ public class StrategicIndicatorsController {
 
     public List<DTODetailedStrategicIndicatorEvaluation> getSingleDetailedStrategicIndicatorsHistoricalEvaluation (String strategicIndicatorId, String projectExternalId, String profileId, LocalDate from, LocalDate to) throws IOException, MongoException, ProjectNotFoundException {
         return qmaDetailedStrategicIndicators.HistoricalData(strategicIndicatorId, from, to, projectExternalId, profileId);
-    }
-
-    public List<DTOStrategicIndicatorEvaluation> getStrategicIndicatorsPrediction (List<DTOStrategicIndicatorEvaluation> si, String technique, String freq, String horizon, String projectExternalId) throws IOException, MongoException, MetricNotFoundException, QualityFactorNotFoundException, StrategicIndicatorNotFoundException {
-        List<DTOStrategicIndicatorEvaluation> forecast = qmaForecast.ForecastSI(si, technique, freq, horizon, projectExternalId);
-        int period = Integer.parseInt(horizon);
-        int j = 0;
-        for (int i = 0; i < forecast.size(); i += period, ++j) {
-            while (i < forecast.size() && forecast.get(i).getValue() == null) {
-                ++i; ++j;
-            }
-            if (i >= forecast.size()) break;
-            int subListEnd = Math.min(i + period, forecast.size());
-            List<DTOStrategicIndicatorEvaluation> forecastedValues = new ArrayList<>(forecast.subList(i, subListEnd));
-            List<Float> predictedValues = new ArrayList<>();
-            List<Date> predictionDates = new ArrayList<>();
-            for (DTOStrategicIndicatorEvaluation forecastedValue : forecastedValues) {
-                predictedValues.add(forecastedValue.getValue().getFirst());
-                LocalDate predictedDate = forecastedValue.getDate();
-                Date date;
-                if (predictedDate == null) date = null;
-                else date = java.sql.Date.valueOf(predictedDate);
-                predictionDates.add(date);
-            }
-            alertsController.checkAlertsForIndicatorsPrediction(si.get(j).getValue().getFirst(), si.get(j).getId(), predictedValues, predictionDates, projectExternalId, technique);
-        }
-        return forecast;
-    }
-
-    public List<DTODetailedStrategicIndicatorEvaluation> getDetailedStrategicIndicatorsPrediction (List<DTODetailedStrategicIndicatorEvaluation> currentEvaluation, String technique, String freq, String horizon, String projectExternalId) throws IOException, MongoException, MetricNotFoundException, QualityFactorNotFoundException, StrategicIndicatorNotFoundException {
-        //Save the current evaluations values as they will be modified to obtain the forecast. Using a string made of siId+factorId as key.
-        Map<String,Float> currentValues = new HashMap<>();
-        for (int si = 0; si < currentEvaluation.size(); ++si){
-            for (int f = 0; f < currentEvaluation.get(si).getFactors().size(); ++f){
-                currentValues.put(currentEvaluation.get(si).getId()+currentEvaluation.get(si).getFactors().get(f).getId(),currentEvaluation.get(si).getFactors().get(f).getValue().getFirst());
-            }
-        }
-        //obtain the forecast
-        List<DTODetailedStrategicIndicatorEvaluation> forecast = qmaForecast.ForecastDSI(currentEvaluation, technique, freq, horizon, projectExternalId);
-
-        //check for alerts
-        int period=Integer.parseInt(horizon);
-        for (int si = 0; si < forecast.size(); ++si){
-            String siId = forecast.get(si).getId();
-            List <DTOFactorEvaluation> siFactorsPredictions = forecast.get(si).getFactors();
-            int j = 0;
-            for(int i = 0; i < siFactorsPredictions.size(); i += period, ++j){
-                while (i < siFactorsPredictions.size() && siFactorsPredictions.get(i).getValue() == null){
-                    ++i; ++j;
-                }
-                if (i >= siFactorsPredictions.size()) break;
-                int subListEnd = Math.min(i + period, siFactorsPredictions.size());
-                List<DTOFactorEvaluation> forecastedValues = new ArrayList<>(siFactorsPredictions.subList(i, subListEnd));
-                List<Float> predictedValues = new ArrayList<>();
-                List<Date> predictionDates = new ArrayList<>();
-                for (DTOFactorEvaluation forecastedValue : forecastedValues) {
-                    predictedValues.add(forecastedValue.getValue().getFirst());
-                    LocalDate predictedDate = forecastedValue.getDate();
-                    Date date;
-                    if (predictedDate == null) date = null;
-                    else date = java.sql.Date.valueOf(predictedDate);
-                    predictionDates.add(date);
-                }
-                String factorId = forecastedValues.get(0).getId();
-                Float currentValue = currentValues.get(siId+factorId);
-                alertsController.checkAlertsForFactorsPrediction(currentValue, factorId, predictedValues, predictionDates, projectExternalId, technique);
-            }
-        }
-
-        return forecast;
-    }
-
-    public void trainForecastModelsAllProjects(String technique) throws IOException, CategoriesException, ProjectNotFoundException {
-        List<String> projects = projectsController.getAllProjectsExternalID();
-        for (String prj: projects) { // if we train all projects profile isn't important
-            trainForecastModelsSingleProject(prj, "null", technique);
-        }
-    }
-
-
-    public void trainForecastModelsSingleProject(String project, String profile, String technique) throws IOException, CategoriesException, ProjectNotFoundException {
-        List<DTOMetricEvaluation> metrics = metricsController.getAllMetricsCurrentEvaluation(project, profile);
-        qmaForecast.trainMetricForecast(metrics, "7", project, technique);
-
-        List<DTODetailedFactorEvaluation> factors = factorsController.getAllFactorsWithMetricsCurrentEvaluation(project, profile, false);
-        qmaForecast.trainFactorForecast(factors, "7", project, technique);
-
-        List<DTOStrategicIndicatorEvaluation> strategicIndicators = getAllStrategicIndicatorsCurrentEvaluation(project, profile);
-        qmaForecast.trainStrategicIndicatorForecast(strategicIndicators, "7", project, technique);
     }
 
     public boolean assessStrategicIndicators(String projectExternalId, LocalDate dateFrom) throws IOException, CategoriesException, ProjectNotFoundException {
@@ -776,67 +684,6 @@ public class StrategicIndicatorsController {
         }
     }
 
-    public List<DTOStrategicIndicatorEvaluation> simulateStrategicIndicatorsAssessment (Map<String, Float> factorsNameValueMap, String projectExternalId, String profileId) throws IOException, ProjectNotFoundException {
-        List<DTOFactorEvaluation> factors = factorsController.getAllFactorsEvaluation(projectExternalId,profileId,true);
-        for (DTOFactorEvaluation factor : factors) {
-            if (factorsNameValueMap.containsKey(factor.getId())) {
-                factor.setValue(Pair.of(factorsNameValueMap.get(factor.getId()),factorsController.getFactorLabelFromValue(factorsNameValueMap.get(factor.getId()))));
-            }
-        }
-        Iterable<Strategic_Indicator> listSI = getStrategicIndicatorsByProjectAndProfile(projectExternalId,profileId);
-        List<DTOStrategicIndicatorEvaluation> result = new ArrayList<>();
-        for (Strategic_Indicator si : listSI) {
-            Map<String,String> mapSIFactors = new HashMap<>();
-            List<DTOFactorEvaluation> listSIFactors = new ArrayList<>();
-            buildMapAndListOfFactors(factors, si, mapSIFactors, listSIFactors);
-            if (si.getNetwork() != null && si.getNetwork().length > 10) {
-                File tempFile = File.createTempFile("network", ".dne", null);
-                try(FileOutputStream fos = new FileOutputStream(tempFile)) {
-                    fos.write(si.getNetwork());
-                }
-                List<DTOAssessment> assessment = assesSI.assesSI(si.getName().replaceAll("\\s+","").toLowerCase(), mapSIFactors, tempFile);
-                float value = getValueAndLabelFromCategories(assessment).getFirst();
-                result.add(new DTOStrategicIndicatorEvaluation(si.getName().replaceAll("\\s+","").toLowerCase(),
-                        si.getName(),
-                        si.getDescription(),
-                        Pair.of(value, getLabel(value)),
-                        "",
-                        assessment,
-                        null,
-                        "Simulation",
-                        si.getId(),
-                        "",
-                        si.getNetwork() != null));
-            }
-            else {
-                float value = computeStrategicIndicatorValue(listSIFactors);
-                result.add(new DTOStrategicIndicatorEvaluation(si.getName().replaceAll("\\s+","").toLowerCase(),
-                        si.getName(),
-                        si.getDescription(),
-                        Pair.of(value, getLabel(value)),
-                        "",
-                        getCategories(),
-                        null,
-                        "Simulation",
-                        si.getId(),
-                        "",
-                        si.getNetwork() != null));
-            }
-        }
-        return result;
-    }
-
-    private void buildMapAndListOfFactors(List<DTOFactorEvaluation> factors, Strategic_Indicator si, Map<String, String> mapSIFactors, List<DTOFactorEvaluation> listSIFactors) {
-        for (String qfId : si.getQuality_factors()) {
-            for (DTOFactorEvaluation factor : factors) {
-                if (factor.getId().equals(qfId)) {
-                    mapSIFactors.put(factor.getId(), factorsController.getFactorLabelFromValue(factor.getValue().getFirst()));
-                    listSIFactors.add(factor);
-                }
-            }
-        }
-    }
-
     public float computeStrategicIndicatorValue(List<DTOFactorEvaluation> factors) {
         float result = 0;
         int nFactors = 0;
@@ -901,7 +748,4 @@ public class StrategicIndicatorsController {
         return qmaRelations.getRelations(projectExternalId, profileId, date);
     }
 
-    public List<String> getForecastTechniques() {
-        return qmaForecast.getForecastTechniques();
-    }
 }

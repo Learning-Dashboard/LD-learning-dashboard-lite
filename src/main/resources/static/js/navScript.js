@@ -1,5 +1,5 @@
 var currentURL = window.location.href;
-var viewMode, DSIRepresentationMode, DQFRepresentationMode, metRepresentationMode, qmMode, time, assessment, prediction, products, simulation, userName;
+var viewMode, DSIRepresentationMode, DQFRepresentationMode, metRepresentationMode, qmMode, time, assessment, products, userName;
 var lastresfresh = new Date();
 var configuration="StrategicIndicators"
 lastresfresh= lastresfresh.getTime();
@@ -165,18 +165,12 @@ if (!(time = sessionStorage.getItem("time"))) {
 if (!(assessment = sessionStorage.getItem("assessment"))) {
     assessment = "StrategicIndicators";
 }
-if (!(prediction = sessionStorage.getItem("prediction"))) {
-    prediction = "StrategicIndicators";
-}
 if (!(products = sessionStorage.getItem("products"))) {
     products = "Evaluation";
 }
 if (!(configuration = sessionStorage.getItem("configuration"))) {
     configuration = "StrategicIndicators";
     if(configuration=="profiles") configuration = "StrategicIndicators";
-}
-if (!(simulation = sessionStorage.getItem("simulation"))) {
-    simulation = "Factors";
 }
 
 //Store state in sessionStorage
@@ -288,43 +282,19 @@ $("#" + time).css("background-color", "#ffc380");
 var id;
 if ((currentURL.search("/StrategicIndicators/") !== -1 || currentURL.search("/EditStrategicIndicators/") !== -1) && !currentURL.match("Configuration")) {
     id = "StrategicIndicators";
-    if (currentURL.search("/Prediction") !== -1)
-        highlightAndSaveCurrentPrediction(id);
-    else
-        highlightAndSaveCurrentAssessment(id);
+    highlightAndSaveCurrentAssessment(id);
 } else if (currentURL.search("/DetailedStrategicIndicators/") !== -1) {
     id = "DetailedStrategicIndicators";
-    if (currentURL.search("/Prediction") !== -1)
-        highlightAndSaveCurrentPrediction(id);
-    else
-        highlightAndSaveCurrentAssessment(id);
+    highlightAndSaveCurrentAssessment(id);
 } else if (currentURL.search("/QualityFactors/") !== -1 && !currentURL.match("Configuration")) {
     id = "QualityFactors";
-    if (currentURL.search("/Prediction") !== -1)
-        highlightAndSaveCurrentPrediction(id);
-    else
-        highlightAndSaveCurrentAssessment(id);
+    highlightAndSaveCurrentAssessment(id);
 } else if (currentURL.search("/DetailedQualityFactors/") !== -1) {
     id = "DetailedQualityFactors";
-    if (currentURL.search("/Prediction") !== -1)
-        highlightAndSaveCurrentPrediction(id);
-    else
-        highlightAndSaveCurrentAssessment(id);
+    highlightAndSaveCurrentAssessment(id);
 } else if (currentURL.search("/Metrics/") !== -1 && !currentURL.match("Configuration")) {
     id = "Metrics";
-    if (currentURL.search("/Prediction") !== -1)
-        highlightAndSaveCurrentPrediction(id);
-    else
-        highlightAndSaveCurrentAssessment(id);
-} else if (currentURL.search("/Simulation/Factors") !== -1) {
-    id = "Factors";
-    highlightAndSaveCurrentSimulation(id);
-} else if (currentURL.search("/Simulation/Metrics") !== -1) {
-    id = "Metrics";
-    highlightAndSaveCurrentSimulation(id);
-} else if (currentURL.search("/Simulation/QR") !== -1) {
-    id = "QR";
-    highlightAndSaveCurrentSimulation(id);
+    highlightAndSaveCurrentAssessment(id);
 } else if (currentURL.search("/QualityAlerts") !== -1) {
     id = "QualityAlerts";
     highlight(id);
@@ -336,9 +306,6 @@ if ((currentURL.search("/StrategicIndicators/") !== -1 || currentURL.search("/Ed
     highlight(id);
 } else if (currentURL.search("/Decisions") !== -1) {
     id = "Decisions";
-    highlight(id);
-} else if (currentURL.search("/Reporting") !== -1) {
-    id = "Reporting";
     highlight(id);
 } else if (currentURL.search("/QualityModel") !== -1) {
     id = "QualityModel";
@@ -391,15 +358,6 @@ function highlightAndSaveCurrentAssessment (id) {
     assessment = id;
 }
 
-function highlightAndSaveCurrentPrediction (id) {
-    var predictionButton = $("#Prediction");
-    predictionButton.css("background-color", "#eeeeee");
-    predictionButton.css("color", "black");
-    highlight(id+"Prediction");
-    sessionStorage.setItem("prediction", id);
-    prediction = id;
-}
-
 function highlightandSaveCurrentProducts (id) {
     var productsButton = $("#Products");
     productsButton.css("background-color", "#eeeeee");
@@ -416,15 +374,6 @@ function highlightAndSaveCurrentConfiguration (id) {
     highlight(id + "Config");
     sessionStorage.setItem("configuration", id);
     configuration = id;
-}
-
-function highlightAndSaveCurrentSimulation (id) {
-    var simulationButton = $("#Simulation");
-    simulationButton.css("background-color", "#eeeeee");
-    simulationButton.css("color", "black");
-    highlight(id+"Simulation");
-    sessionStorage.setItem("simulation", id);
-    simulation = id;
 }
 
 function highlight (id) {
@@ -469,11 +418,7 @@ else if (assessment === "DetailedStrategicIndicators") {
     }
 } else $("#Assessment").attr("href", serverUrl + "/" + assessment  + "/" + time + viewMode);
 
-$("#Prediction").attr("href", serverUrl + "/" + prediction + "/" + "PredictionChart");
-
 $("#StrategicIndicatorsAssessment").attr("href", serverUrl + "/StrategicIndicators/" + time + viewMode);
-
-$("#StrategicIndicatorsPrediction").attr("href", serverUrl + "/StrategicIndicators/PredictionChart");
 
 if ((time == "Current") && (viewMode == "Chart")) {
     console.log("DSIRepresentationMode " + DSIRepresentationMode);
@@ -482,11 +427,7 @@ if ((time == "Current") && (viewMode == "Chart")) {
     $("#DetailedStrategicIndicatorsAssessment").attr("href", serverUrl + "/DetailedStrategicIndicators/" + time + viewMode);
 }
 
-$("#DetailedStrategicIndicatorsPrediction").attr("href", serverUrl + "/DetailedStrategicIndicators/PredictionChart");
-
 $("#QualityFactorsAssessment").attr("href", serverUrl + "/QualityFactors/" + time + viewMode);
-
-$("#QualityFactorsPrediction").attr("href", serverUrl + "/QualityFactors/PredictionChart");
 
 if ((time == "Current") && (viewMode == "Chart")) {
     console.log("DQFRepresentationMode " + DQFRepresentationMode);
@@ -494,24 +435,12 @@ if ((time == "Current") && (viewMode == "Chart")) {
 } else {
     $("#DetailedQualityFactorsAssessment").attr("href", serverUrl + "/DetailedQualityFactors/" + time + viewMode);}
 
-$("#DetailedQualityFactorsPrediction").attr("href", serverUrl + "/DetailedQualityFactors/PredictionChart");
-
 if ((time == "Current") && (viewMode == "Chart")) {
     console.log("metRepresentationMode " + metRepresentationMode);
     $("#MetricsAssessment").attr("href", serverUrl + "/Metrics/" + time + viewMode + metRepresentationMode);
 } else {
     $("#MetricsAssessment").attr("href", serverUrl + "/Metrics/" + time + viewMode);
 }
-
-$("#MetricsPrediction").attr("href", serverUrl + "/Metrics/PredictionChart");
-
-$("#Simulation").attr("href", serverUrl + "/Simulation/" + simulation);
-
-$("#FactorsSimulation").attr("href", serverUrl + "/Simulation/Factors");
-
-$("#MetricsSimulation").attr("href", serverUrl + "/Simulation/Metrics");
-
-$("#QRSimulation").attr("href", serverUrl + "/Simulation/QR");
 
 $("#QualityAlerts").attr("href", serverUrl + "/QualityAlerts");
 
@@ -563,8 +492,6 @@ $("#profileConfig").attr("href", serverUrl + "/profile");
 $("#usersConfig").attr("href", serverUrl + "/users");
 
 $("#usergroupsConfig").attr("href", serverUrl + "/usergroups");
-
-$("#Reporting").attr("href", serverUrl + "/Reporting");
 
 $("#DataProtection").attr("href", serverUrl + "/DataProtection");
 

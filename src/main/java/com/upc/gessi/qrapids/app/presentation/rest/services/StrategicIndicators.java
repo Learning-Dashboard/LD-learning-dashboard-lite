@@ -1,7 +1,5 @@
 package com.upc.gessi.qrapids.app.presentation.rest.services;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonParser;
 import com.mongodb.MongoException;
 
 import com.upc.gessi.qrapids.app.domain.controllers.*;
@@ -17,7 +15,6 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -44,9 +41,6 @@ public class StrategicIndicators {
     private ProjectsController projectsController;
 
     private Logger logger = LoggerFactory.getLogger(StrategicIndicators.class);
-
-    @Value("${forecast.technique}")
-    private String forecastTechnique;
 
     @GetMapping("/api/strategicIndicators/current")
     @ResponseStatus(HttpStatus.OK)
@@ -179,66 +173,6 @@ public class StrategicIndicators {
             logger.error(e.getMessage(), e);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format(Messages.PROJECT_NOT_FOUND, prj));
         } catch (IOException | ProjectNotFoundException e) {
-            logger.error(e.getMessage(), e);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, Messages.INTERNAL_SERVER_ERROR + e.getMessage());
-        }
-    }
-
-    @GetMapping("/api/strategicIndicators/prediction")
-    @ResponseStatus(HttpStatus.OK)
-    public List<DTOStrategicIndicatorEvaluation> getStrategicIndicatorsPrediction(@RequestParam(value = "prj", required=false) String prj, @RequestParam(value = "profile", required = false) String profile, @RequestParam("technique") String technique, @RequestParam("horizon") String horizon) {
-        try {
-            List<DTOStrategicIndicatorEvaluation> currentEvaluation = strategicIndicatorsController.getAllStrategicIndicatorsCurrentEvaluation(prj,profile);
-            return strategicIndicatorsController.getStrategicIndicatorsPrediction(currentEvaluation, technique, "7", horizon, prj);
-        } catch (MongoException e) {
-            logger.error(e.getMessage(), e);
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format(Messages.PROJECT_NOT_FOUND, prj));
-        } catch (IOException | CategoriesException | ProjectNotFoundException e) {
-            logger.error(e.getMessage(), e);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, Messages.INTERNAL_SERVER_ERROR + e.getMessage());
-        }
-    }
-
-    @GetMapping("/api/strategicIndicators/qualityFactors/prediction")
-    @ResponseStatus(HttpStatus.OK)
-    public List<DTODetailedStrategicIndicatorEvaluation> getDetailedStrategicIndicatorsPredictionData(@RequestParam(value = "prj", required=false) String prj, @RequestParam(value = "profile", required = false) String profile, @RequestParam("technique") String technique, @RequestParam("horizon") String horizon) {
-        try {
-            List<DTODetailedStrategicIndicatorEvaluation> currentEvaluation = strategicIndicatorsController.getAllDetailedStrategicIndicatorsCurrentEvaluation(prj, profile,true);
-            return strategicIndicatorsController.getDetailedStrategicIndicatorsPrediction(currentEvaluation, technique, "7", horizon, prj);
-        } catch (MongoException | ProjectNotFoundException e) {
-            logger.error(e.getMessage(), e);
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format(Messages.PROJECT_NOT_FOUND, prj));
-        } catch (IOException e) {
-            logger.error(e.getMessage(), e);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, Messages.INTERNAL_SERVER_ERROR + e.getMessage());
-        }
-    }
-
-    @GetMapping("/api/strategicIndicators/{id}/qualityFactors/prediction")
-    @ResponseStatus(HttpStatus.OK)
-    public List<DTODetailedStrategicIndicatorEvaluation> getSingleQualityFactorsPredictionData(@RequestParam(value = "prj", required=false) String prj, @RequestParam(value = "profile", required = false) String profile, @RequestParam("technique") String technique, @RequestParam("horizon") String horizon, @PathVariable String id) {
-        try {
-            List<DTODetailedStrategicIndicatorEvaluation> currentEvaluation = strategicIndicatorsController.getSingleDetailedStrategicIndicatorCurrentEvaluation(id, prj, profile);
-            return strategicIndicatorsController.getDetailedStrategicIndicatorsPrediction(currentEvaluation, technique, "7", horizon, prj);
-        } catch (MongoException | ProjectNotFoundException e) {
-            logger.error(e.getMessage(), e);
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format(Messages.PROJECT_NOT_FOUND, prj));
-        } catch (IOException e) {
-            logger.error(e.getMessage(), e);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, Messages.INTERNAL_SERVER_ERROR + e.getMessage());
-        }
-    }
-
-    @GetMapping("/api/strategicIndicators/{id}/qualityFactors/metrics/prediction")
-    @ResponseStatus(HttpStatus.OK)
-    public List<DTODetailedFactorEvaluation> getQualityFactorsPredictionData(@RequestParam(value = "prj") String prj, @RequestParam("technique") String technique, @RequestParam("horizon") String horizon, @PathVariable String id) {
-        try {
-            List<DTODetailedFactorEvaluation> currentEvaluation = factorsController.getFactorsWithMetricsForOneStrategicIndicatorCurrentEvaluation(id, prj);
-            return factorsController.getFactorsWithMetricsPrediction(currentEvaluation, technique, "7", horizon, prj);
-        } catch (MongoException | ProjectNotFoundException e) {
-            logger.error(e.getMessage(), e);
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format(Messages.PROJECT_NOT_FOUND, prj));
-        } catch (IOException e) {
             logger.error(e.getMessage(), e);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, Messages.INTERNAL_SERVER_ERROR + e.getMessage());
         }
@@ -377,24 +311,18 @@ public class StrategicIndicators {
         strategicIndicatorsController.newStrategicIndicatorCategories(categories);
     }
 
-    private enum TrainType {
-        NONE, ONE, ALL
-    }
-
     // assess Strategic Indicators function legacy
     @RequestMapping("/api/assessStrategicIndicators")
     @ResponseStatus(HttpStatus.OK)
     public void assesStrategicIndicatorsLegacy(@RequestParam(value = "prj", required=false) String prj,
-                                  @RequestParam(value = "from", required=false) String from,
-                                  @RequestParam(value = "train", required = false, defaultValue = "ONE") TrainType trainType) {
-        assesStrategicIndicators(prj, from, trainType);
+                                  @RequestParam(value = "from", required=false) String from) {
+        assesStrategicIndicators(prj, from);
     }
 
     @GetMapping("/api/strategicIndicators/assess")
     @ResponseStatus(HttpStatus.OK)
     public void assesStrategicIndicators(@RequestParam(value = "prj", required=false) String prj,
-                                         @RequestParam(value = "from", required=false) String from,
-                                         @RequestParam(value = "train", required = false, defaultValue = "ONE") TrainType trainType) {
+                                         @RequestParam(value = "from", required=false) String from) {
         boolean correct = true;
         LocalDate dateFrom = null;
         if (prj != null && !prj.isEmpty()) {
@@ -416,20 +344,6 @@ public class StrategicIndicators {
             correct = factorsController.assessQualityFactors(prj, dateFrom);
             if (correct) {
                 correct = strategicIndicatorsController.assessStrategicIndicators(prj, dateFrom);
-            }
-            if(correct) {
-                // Train forecast models
-                if (trainType != TrainType.NONE) {
-                    String technique = null;
-                    if (trainType == TrainType.ONE) {
-                        technique = forecastTechnique;
-                    }
-                    if (prj == null) {
-                        strategicIndicatorsController.trainForecastModelsAllProjects(technique);
-                    } else {
-                        strategicIndicatorsController.trainForecastModelsSingleProject(prj, null, technique);
-                    }
-                }
             }
             if (!correct) {
                 throw new AssessmentErrorException();
@@ -455,25 +369,6 @@ public class StrategicIndicators {
         }
     }
 
-    @PostMapping("/api/strategicIndicators/simulate")
-    @ResponseStatus(HttpStatus.OK)
-    public List<DTOStrategicIndicatorEvaluation> simulate(@RequestParam(value = "prj", required=false) String prj, @RequestParam(value = "profile", required=false) String profile, HttpServletRequest request) {
-        try {
-            JsonParser parser = new JsonParser();
-            JsonArray simulatedFactorsJsonArray = parser.parse(request.getParameter("factors")).getAsJsonArray();
-            Map<String, Float> simulatedFactorsMap = new HashMap<>();
-            for (int i = 0; i < simulatedFactorsJsonArray.size(); i++) {
-                String factorName = simulatedFactorsJsonArray.get(i).getAsJsonObject().get("id").getAsString();
-                Float factorValue = simulatedFactorsJsonArray.get(i).getAsJsonObject().get("value").getAsFloat();
-                simulatedFactorsMap.put(factorName, factorValue);
-            }
-            return strategicIndicatorsController.simulateStrategicIndicatorsAssessment(simulatedFactorsMap, prj, profile);
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Simulation error: " + e.getMessage());
-        }
-    }
-
     @GetMapping("/api/strategicIndicators/qualityModel")
     @ResponseStatus(HttpStatus.OK)
     public List<DTORelationsSI> getQualityModel(@RequestParam("prj") String prj, @RequestParam(value = "date", required = false) String date,@RequestParam(value = "profile", required = false) String profile) {
@@ -486,12 +381,6 @@ public class StrategicIndicators {
             logger.error(e.getMessage(), e);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, Messages.INTERNAL_SERVER_ERROR + e.getMessage());
         }
-    }
-
-    @GetMapping("/api/forecastTechniques")
-    @ResponseStatus(HttpStatus.OK)
-    public List<String> getForecastTechniques() {
-        return strategicIndicatorsController.getForecastTechniques();
     }
 
     @GetMapping("/api/strategicIndicators/currentDate")

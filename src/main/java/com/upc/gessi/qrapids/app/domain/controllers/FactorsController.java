@@ -1,10 +1,8 @@
 package com.upc.gessi.qrapids.app.domain.controllers;
 
 import com.upc.gessi.qrapids.app.domain.adapters.AssessQF;
-import com.upc.gessi.qrapids.app.domain.adapters.Forecast;
 import com.upc.gessi.qrapids.app.domain.adapters.QMA.QMAQualityFactors;
 import com.upc.gessi.qrapids.app.domain.adapters.QMA.QMARelations;
-import com.upc.gessi.qrapids.app.domain.adapters.QMA.QMASimulation;
 import com.upc.gessi.qrapids.app.domain.exceptions.*;
 import com.upc.gessi.qrapids.app.domain.models.*;
 import com.upc.gessi.qrapids.app.domain.models.Factor;
@@ -68,10 +66,6 @@ public class FactorsController {
     // it was made to use these variables in static method
     @Autowired
     private QFCategoryRepository factorCategoryRepository;
-    @Autowired
-    private QMASimulation qmaSimulation;
-    @Autowired
-    private Forecast qmaForecast;
     @Autowired
     private QMAQualityFactors qmaQualityFactors;
 
@@ -903,52 +897,6 @@ public class FactorsController {
         return qmaQualityFactors.HistoricalData(strategicIndicatorId, dateFrom, dateTo, projectExternalId, null);
     }
 
-    public List<DTODetailedFactorEvaluation> getFactorsWithMetricsPrediction(
-            List<DTODetailedFactorEvaluation> currentEvaluation, String technique, String freq, String horizon,
-            String projectExternalId) throws IOException, MetricNotFoundException, QualityFactorNotFoundException,
-            StrategicIndicatorNotFoundException {
-        // Save the current evaluations metrics dto as they are going to be changed for
-        // the forecast creation
-        Map<String, DTOMetricEvaluation> currentMetricEvals = new HashMap<>();
-        for (int f = 0; f < currentEvaluation.size(); ++f) {
-            for (int m = 0; m < currentEvaluation.get(f).getMetrics().size(); ++m) {
-                currentMetricEvals.put(
-                        currentEvaluation.get(f).getId() + currentEvaluation.get(f).getMetrics().get(m).getId(),
-                        currentEvaluation.get(f).getMetrics().get(m));
-            }
-        }
-        List<DTODetailedFactorEvaluation> forecast = qmaForecast.ForecastDetailedFactor(currentEvaluation, technique,
-                freq, horizon, projectExternalId);
-        int period = Integer.parseInt(horizon);
-        for (int qf = 0; qf < forecast.size(); ++qf) {
-            String factorId = forecast.get(qf).getId();
-            List<DTOMetricEvaluation> qfMetricsPredictions = forecast.get(qf).getMetrics();
-            int j = 0;
-            for (int i = 0; i < qfMetricsPredictions.size(); i += period, ++j) {
-                while (i < qfMetricsPredictions.size() && qfMetricsPredictions.get(i).getValue() == null) {
-                    ++i;
-                    ++j;
-                }
-                if (i >= qfMetricsPredictions.size())
-                    break;
-                int subListEnd = Math.min(i + period, forecast.size());
-                List<DTOMetricEvaluation> forecastedValues = new ArrayList<>(
-                        qfMetricsPredictions.subList(i, subListEnd));
-                String metricId = forecastedValues.get(0).getId();
-                DTOMetricEvaluation currentMetricEval = currentMetricEvals.get(factorId + metricId);
-                alertsController.checkAlertsForMetricsPrediction(currentMetricEval, forecastedValues, projectExternalId,
-                        technique);
-            }
-        }
-
-        return forecast;
-    }
-
-    public List<DTOFactorEvaluation> simulate(Map<String, Float> metricsValue, String projectExternalId, String profile,
-            LocalDate date) throws IOException {
-        return qmaSimulation.simulateQualityFactors(metricsValue, projectExternalId, profile, date);
-    }
-
     public void setFactorStrategicIndicatorRelation(List<DTOFactorEvaluation> factorList, String projectExternalId)
             throws IOException {
         qmaQualityFactors.setFactorStrategicIndicatorRelation(factorList, projectExternalId);
@@ -995,40 +943,6 @@ public class FactorsController {
                                                                                                        // la palabra y
                                                                                                        // el espacio
         return category;
-    }
-
-    public List<DTOFactorEvaluation> getFactorsPrediction(List<DTOFactorEvaluation> currentEvaluation, String prj,
-            String technique, String freq, String horizon) throws IOException, MetricNotFoundException,
-            QualityFactorNotFoundException, StrategicIndicatorNotFoundException {
-        List<DTOFactorEvaluation> forecast = qmaForecast.ForecastFactor(currentEvaluation, technique, freq, horizon,
-                prj);
-        int period = Integer.parseInt(horizon);
-        int j = 0;
-        for (int i = 0; i < forecast.size(); i += period, ++j) {
-            while (i < forecast.size() && forecast.get(i).getValue() == null) {
-                ++i;
-                ++j;
-            }
-            if (i >= forecast.size())
-                break;
-            int subListEnd = Math.min(i + period, forecast.size());
-            List<DTOFactorEvaluation> forecastedValues = new ArrayList<>(forecast.subList(i, subListEnd));
-            List<Float> predictedValues = new ArrayList<>();
-            List<Date> predictionDates = new ArrayList<>();
-            for (int f = 0; f < forecastedValues.size(); ++f) {
-                predictedValues.add(forecastedValues.get(f).getValue().getFirst());
-                LocalDate predictedDate = forecastedValues.get(f).getDate();
-                Date date;
-                if (predictedDate == null)
-                    date = null;
-                else
-                    date = java.sql.Date.valueOf(predictedDate);
-                predictionDates.add(date);
-            }
-            alertsController.checkAlertsForFactorsPrediction(currentEvaluation.get(j).getValue().getFirst(),
-                    currentEvaluation.get(j).getId(), predictedValues, predictionDates, prj, technique);
-        }
-        return forecast;
     }
 
     public List<Factor> getQualityFactorsByProjectAndProfile(String prjExternalId, String profileId)

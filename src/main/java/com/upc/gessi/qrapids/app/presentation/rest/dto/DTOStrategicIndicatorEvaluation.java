@@ -29,7 +29,6 @@ public class DTOStrategicIndicatorEvaluation {
     private boolean hasFeedback;
     private Pair<Float, Float> confidence80;
     private Pair<Float, Float> confidence95;
-    private String forecastingError;
     private int mismatchDays;
     private List<String> missingFactors;
 
@@ -74,12 +73,6 @@ public class DTOStrategicIndicatorEvaluation {
         setDatasource(datasource);
         setCategories_description(categories);
         setHasBN(hasBN);
-    }
-
-    public DTOStrategicIndicatorEvaluation(String id, String name, String forecastingError) {
-        this.id = id;
-        this.name = name;
-        this.forecastingError = forecastingError;
     }
 
     /**
@@ -200,14 +193,6 @@ public class DTOStrategicIndicatorEvaluation {
 
     public void setHasFeedback(boolean hasFeedback) {
         this.hasFeedback = hasFeedback;
-    }
-
-    public String getForecastingError() {
-        return forecastingError;
-    }
-
-    public void setForecastingError(String forecastingError) {
-        this.forecastingError = forecastingError;
     }
 
     public int getMismatchDays() {

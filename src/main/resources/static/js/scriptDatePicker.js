@@ -12,10 +12,8 @@ var config = {
 };
 
 var currentURL = window.location.href;
-if ((currentURL.search("/Historic") !== -1) || (currentURL.search("/Reporting") !== -1)) {
+if (currentURL.search("/Historic") !== -1) {
     configureHistoric();
-} else if (currentURL.search("/Prediction") !== -1) {
-    configurePrediction();
 }
 
 function getProjectId () {
@@ -58,26 +56,14 @@ function configureHistoric () {
     $('#datepickerFrom').datepicker(config);
     $('#datepickerTo').datepicker(config);
 
-    if (window.location.href.match("/Reporting")) { // reporting page intervals
-        $('#intervalsDropdown').append('<li><a onclick="thisWeek();" href="#">This week</a></li>');
-        $('#intervalsDropdown').append('<li><a onclick="last7Days();" href="#">Last 7 days</a></li>');
-        $('#intervalsDropdown').append('<li><a onclick="last14Days();" href="#">Last 14 days</a></li>');
-        $('#intervalsDropdown').append('<li><a onclick="thisMonth();" href="#">This month</a></li>');
-        $('#intervalsDropdown').append('<li><a onclick="thisYear();" href="#">This year</a></li>');
-    } else { // historic page intervals
-        $('#intervalsDropdown').append('<li><a onclick="thisWeek();$(\'#chartContainer\').empty();getData()" href="#">This week</a></li>');
+    $('#intervalsDropdown').append('<li><a onclick="thisWeek();$(\'#chartContainer\').empty();getData()" href="#">This week</a></li>');
         $('#intervalsDropdown').append('<li><a onclick="last7Days();$(\'#chartContainer\').empty();getData()" href="#">Last 7 days</a></li>');
         $('#intervalsDropdown').append('<li><a onclick="last14Days();$(\'#chartContainer\').empty();getData()" href="#">Last 14 days</a></li>');
         $('#intervalsDropdown').append('<li><a onclick="thisMonth();$(\'#chartContainer\').empty();getData()" href="#">This month</a></li>');
         $('#intervalsDropdown').append('<li><a onclick="thisYear();$(\'#chartContainer\').empty();getData()" href="#">This year</a></li>');
-    }
 
     sprintDates.forEach( function (elem) {
-        if (window.location.href.match("/Reporting")) { // reporting page intervals
-            $('#intervalsDropdown').append('<li><a onclick="setSprintDates(\'' + elem.from_date + '\', \'' + elem.to_date + '\');" href="#">' + elem.name + '</a></li>');
-        }else{
-            $('#intervalsDropdown').append('<li><a onclick="setSprintDates(\'' + elem.from_date + '\', \'' + elem.to_date + '\');$(\'#chartContainer\').empty();getData()" href="#">' + elem.name + '</a></li>');
-        }
+        $('#intervalsDropdown').append('<li><a onclick="setSprintDates(\'' + elem.from_date + '\', \'' + elem.to_date + '\');$(\'#chartContainer\').empty();getData()" href="#">' + elem.name + '</a></li>');
     });
 
     var historicFrom;
@@ -110,52 +96,8 @@ function configureHistoric () {
     $('#datepickerTo').datepicker().value(historicTo);
 
     // hide prediction related parts
-    $('#techniqueDropdownDiv').hide();
     $('#current_dateDiv').hide();
     $('#showConfidenceDiv').hide();
-    // hide some parts in reporting page
-    if (window.location.href.match("/Reporting")) {
-        $('#fitToContentDiv').hide();
-        $('#applyButton').hide();
-    }
-}
-
-async function configurePrediction () {
-    getPredictionCurrentDate();
-
-    config.maxDate = parseDate(sessionStorage.getItem("predictionCurrentDate"));
-    $('#datepickerFrom').datepicker(config);
-    config.maxDate = null; // necessary to config min date correctly
-    var d = new Date(sessionStorage.getItem("predictionCurrentDate"));
-    var dateMin = d.setDate(d.getDate() + 1);
-    config.minDate = parseDate(dateMin);
-    $('#datepickerCurrentDate').datepicker(config);
-    $('#datepickerTo').datepicker(config);
-
-    $('#intervalsDropdown').append('<li><a onclick="next7Days();$(\'#chartContainer\').empty();getData()" href="#">Next 7 days</a></li>');
-    $('#intervalsDropdown').append('<li><a onclick="next14Days();$(\'#chartContainer\').empty();getData()" href="#">Next 14 days</a></li>');
-
-
-    var predictionFrom = sessionStorage.getItem("predictionFromDate");
-    if (!predictionFrom)
-        back14Days();
-    else $('#datepickerFrom').datepicker().value(predictionFrom);
-
-    var predictionCurrent = sessionStorage.getItem("predictionCurrentDate");
-    $('#datepickerCurrentDate').datepicker().value(predictionCurrent);
-    $('#current_dateDiv').show();
-    $('#datepickerCurrentDate').prop("disabled",true);
-    $('#current_dateDiv').find("span").css("pointer-events", "none");
-
-    var predictionTo = sessionStorage.getItem("predictionToDate");
-    if (!predictionTo)
-        next7Days();
-    else $('#datepickerTo').datepicker().value(predictionTo);
-
-    $('#techniqueDropdownDiv').show();
-    loadTechniques();
-
-    $('#showConfidenceDiv').show();
 }
 
 function thisWeek() {
@@ -181,109 +123,15 @@ function getPreviousMonday() {
     return prevMonday;
 }
 
-function loadTechniques () {
-    jQuery.ajax({
-        dataType: "json",
-        url: "../api/forecastTechniques",
-        cache: false,
-        type: "GET",
-        async: true,
-        success: function (techniques) {
-            console.log("tecniques");
-            console.log(techniques);
-            for (i = 0; i < techniques.length; i++) {
-                $("#techniqueDropdown").append('<li><a onclick="setTechnique(\''+techniques[i]+'\')" href="#">'+ techniques[i] +'</a></li>');
-            }
-        }
-    });
-
-    var lastUsedTechnique = sessionStorage.getItem("forecastingTechnique");
-    if (lastUsedTechnique != null) {
-        setTechnique(lastUsedTechnique);
-    }
-}
-
-function setTechnique(technique) {
-    sessionStorage.setItem("forecastingTechnique", technique);
-    $("#selectedTechnique").text(technique);
-}
-
-function getPredictionCurrentDate() {
-    var saved = sessionStorage.getItem("predictionCurrentDate"); // current actual saved in sessionStorage
-    // set current datapicker for each case
-    if (currentURL.match("/Metrics/PredictionChart")) {
-        jQuery.ajax({
-            dataType: "json",
-            url: "../api/metrics/currentDate",
-            cache: false,
-            type: "GET",
-            async: false,
-            success: function (date) {
-                console.log(date);
-                if (saved !== date) {
-                    sessionStorage.setItem("predictionCurrentDate", date);
-                    sessionStorage.removeItem("predictionToDate");
-                    sessionStorage.removeItem("predictionFromDate");
-                }
-            }
-        });
-    } else if (currentURL.match("/QualityFactors/PredictionChart")|| currentURL.match("/DetailedQualityFactors/PredictionChart")) {
-        jQuery.ajax({
-            dataType: "json",
-            url: "../api/qualityFactors/currentDate",
-            cache: false,
-            type: "GET",
-            async: false,
-            success: function (date) {
-                console.log(date);
-                if (saved !== date) {
-                    sessionStorage.setItem("predictionCurrentDate", date);
-                    sessionStorage.removeItem("predictionToDate");
-                    sessionStorage.removeItem("predictionFromDate");
-                }
-            }
-        });
-    } else if (currentURL.match("/StrategicIndicators/PredictionChart") || currentURL.match("/DetailedStrategicIndicators/PredictionChart")) {
-
-        console.log("sessionStorage: profile_id");
-        console.log(sessionStorage.getItem("profile_id"));
-        var profileId = sessionStorage.getItem("profile_id");
-
-        jQuery.ajax({
-            dataType: "json",
-            url: "../api/strategicIndicators/currentDate?profile="+profileId,
-            cache: false,
-            type: "GET",
-            async: false,
-            success: function (date) {
-                console.log(date);
-                if (saved !== date) {
-                    sessionStorage.setItem("predictionCurrentDate", date);
-                    sessionStorage.removeItem("predictionToDate");
-                    sessionStorage.removeItem("predictionFromDate");
-                }
-            }
-        });
-    }
-}
-
 $("#applyButton").click(function () {
     $('#chartContainer').empty();
     getData();
     var currentURL = window.location.href;
-    if (currentURL.match("/PredictionChart")) {
-        // set from and to datapickers
-        var predictionTo = $('#datepickerTo').datepicker().val();
-        sessionStorage.setItem("predictionToDate", predictionTo);
-        var predictionFrom = $('#datepickerFrom').datepicker().val();
-        sessionStorage.setItem("predictionFromDate", predictionFrom);
-    } else {
-        var historicFrom = $('#datepickerFrom').datepicker().val();
-        sessionStorage.setItem("historicFromDate", historicFrom);
+    var historicFrom = $('#datepickerFrom').datepicker().val();
+    sessionStorage.setItem("historicFromDate", historicFrom);
 
-        var historicTo = $('#datepickerTo').datepicker().val();
-        sessionStorage.setItem("historicToDate", historicTo);
-    }
+    var historicTo = $('#datepickerTo').datepicker().val();
+    sessionStorage.setItem("historicToDate", historicTo);
 });
 
 //Historic intervals
@@ -338,42 +186,6 @@ function setSprintDates(from, to) {
 
     $('#datepickerFrom').datepicker().value(from);
     sessionStorage.setItem("historicFromDate", from);
-}
-
-// Prediction intervals
-
-function next7Days () {
-    var d = new Date(sessionStorage.getItem("predictionCurrentDate"));
-    var date = d.setDate(d.getDate() + 7);
-    var textDate = parseDate(date);
-    $('#datepickerTo').datepicker().value(textDate);
-    sessionStorage.setItem("predictionToDate", textDate);
-    back14Days ();
-}
-
-function back14Days () {
-    var d = new Date(sessionStorage.getItem("predictionCurrentDate"));
-    var date = d.setDate(d.getDate() - 14);
-    var textDate = parseDate(date);
-    $('#datepickerFrom').datepicker().value(textDate);
-    sessionStorage.setItem("predictionFromDate", textDate);
-}
-
-function next14Days () {
-    var d = new Date(sessionStorage.getItem("predictionCurrentDate"));
-    var date = d.setDate(d.getDate() + 14);
-    var textDate = parseDate(date);
-    $('#datepickerTo').datepicker().value(textDate);
-    sessionStorage.setItem("predictionToDate", textDate);
-    back28Days ();
-}
-
-function back28Days () {
-    var d = new Date(sessionStorage.getItem("predictionCurrentDate"));
-    var date = d.setDate(d.getDate() - 28);
-    var textDate = parseDate(date);
-    $('#datepickerFrom').datepicker().value(textDate);
-    sessionStorage.setItem("predictionFromDate", textDate);
 }
 
 function parseDate(date) {

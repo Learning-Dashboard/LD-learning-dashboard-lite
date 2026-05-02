@@ -49,11 +49,8 @@
     <div class="topnav" id="myTopnav" th:fragment="navBarDashboard">
         <a id="Products" style="display: none;">Products</a>
         <a id="Assessment">Assessment</a>
-        <a id="Prediction">Prediction</a>
-        <a id="Simulation">Simulation</a>
         <a id="QualityAlerts">Alerts</a>
         <a id="DataProtection">Data Protection Advice</a>
-        <a id="Reporting" th:if="${@environment.getProperty('jasperServer.url') != ''}">Reporting</a>
         <a id="Configuration" ><span class="glyphicon glyphicon-cog" aria-hidden="true"></span></a>
         <div id="helpDropdown" class="dropdown pull-right" style="margin-top: 1em; margin-right: 1em; margin-left: 1em;">
             <button id="helpDropdownButton" class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
@@ -132,13 +129,6 @@
             </div>
         </span>
     </div>
-    <div class="subnav" id="submenuPrediction" th:fragment="navSubBarPredictionDashboard">
-        <a id="StrategicIndicatorsPrediction">Strategic Indicators</a>
-        <a id="DetailedStrategicIndicatorsPrediction">Detailed Strategic Indicators</a>
-        <a id="QualityFactorsPrediction">Factors</a>
-        <a id="DetailedQualityFactorsPrediction">Detailed Factors</a>
-        <a id="MetricsPrediction">Metrics</a>
-    </div>
     <div class="subnav" id="submenuProjects" th:fragment="navSubBarProductsDashboard">
         <a id="ProductsEvaluation">Products</a>
         <a id="ProductsDetailedEvaluation">Projects</a>
@@ -154,10 +144,6 @@
         <a th:if="${@environment.getProperty('security.enable')}" id="profileConfig">User Profile</a>
         <a th:if="${@environment.getProperty('security.enable')}" id="usersConfig">User Administration</a>
         <a id="UpdatesConfig">Updates Management</a>
-    </div>
-    <div class="subnav" id="submenuSimulation" th:fragment="navSubBarSimulationDashboard">
-        <a id="FactorsSimulation">Factors</a>
-        <a id="MetricsSimulation">Metrics</a>
     </div>
     <p th:fragment="navLinkMetrics" style="margin-left: 20px; font-size: medium; font-family: Arial ">
         <a id="originDSI" onclick="navBack(true)"></a>
@@ -194,14 +180,6 @@
                             </div>
                         </td>
                         <td rowspan="2">
-                            <div class="form-group dropdown" id="techniqueDropdownDiv">
-                                <label class="control-label">Technique: </label>
-                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                                    <span id="selectedTechnique" th:text="${@environment.getProperty('forecast.technique')}"></span>
-                                    <span class="caret"></span>
-                                </button>
-                                <ul id="techniqueDropdown" class="dropdown-menu dropdown-menu-right"></ul>
-                            </div>
                             <div class="form-group" id="fromDiv">
                                 <label class="control-label">From: </label>
                                 <input id="datepickerFrom" width="250" class="form-control"/>

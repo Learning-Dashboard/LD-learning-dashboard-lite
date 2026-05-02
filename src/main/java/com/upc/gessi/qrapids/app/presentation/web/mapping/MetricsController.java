@@ -35,11 +35,6 @@ public class MetricsController {
         return "Metrics/HistoricChart";
     }
 
-    @RequestMapping("/Metrics/PredictionChart")
-    public String PredictionChart(){
-        return "Metrics/PredictionChart";
-    }
-
     @RequestMapping("/Metrics/Configuration")
     public String Config(){
         return "Metrics/AdditionalScreens/MetricsConfig";

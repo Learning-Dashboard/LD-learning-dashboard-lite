@@ -26,8 +26,6 @@ public class DTOMetricEvaluation {
     private Pair<Float, Float> confidence80;
     private Pair<Float, Float> confidence95;
     private List<String> quality_factors;
-    private String forecastingError;
-    
 
 
     /**
@@ -79,12 +77,6 @@ public class DTOMetricEvaluation {
         setRationale(rationale);
         setConfidence80(confidence80);
         setConfidence95(confidence95);
-    }
-
-    public DTOMetricEvaluation(String id, String name, String forecastingError) {
-        this.id = id;
-        this.name = name;
-        this.forecastingError = forecastingError;
     }
 
     public DTOMetricEvaluation() {
@@ -192,14 +184,6 @@ public class DTOMetricEvaluation {
 
     public void addQualityFactors(String qualityFactorID) {
         this.quality_factors.add(qualityFactorID);
-    }
-
-    public String getForecastingError() {
-        return forecastingError;
-    }
-
-    public void setForecastingError(String forecastingError) {
-        this.forecastingError = forecastingError;
     }
 
     public String getScope() {

@@ -37,17 +37,9 @@ public class RoutesFirstLoad {
         // REST - Strategic indicators
 
         // Changed to the routes the user can NOT acces
-        routes.add( new Route( "REST : Strategic Indicators - Prediction Chart", "/StrategicIndicators/PredictionChart") );
-        routes.add( new Route( "REST : Detailed Strategic Indicators - Prediction Chart", "/DetailedStrategicIndicators/PredictionChart") );
-        routes.add( new Route( "REST : Quality Factors - Prediction Chart", "/QualityFactors/PredictionChart") );
-        routes.add( new Route( "REST : Detailed Quality Factors - Prediction Chart", "/DetailedQualityFactors/PredictionChart") );
-        routes.add( new Route( "REST : Metrics - Prediction Chart", "/Metrics/PredictionChart") );
-
         routes.add( new Route( "REST : Strategic Indicators - Current Evaluation", "/QualityRequirements") );
 
         routes.add( new Route( "REST : Decisions", "/Decisions") );
-
-        routes.add( new Route( "REST : Reporting", "/Reporting") );
 
         routes.add( new Route( "REST : Phases", "/Phases") );
 

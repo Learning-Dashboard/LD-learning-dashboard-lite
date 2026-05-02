@@ -17,7 +17,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -39,21 +38,6 @@ public class Util {
 
     @Value("${assessSI.url:}")
     private String assessSIUrl;
-
-    @Value("${jasperServer.url}")
-    private String jasperserverURL;
-
-    @Value("${jasperserver.user}")
-    private String jasperserverUser;
-
-    @Value("${jasperserver.password}")
-    private String jasperserverPassword;
-
-    @GetMapping("/api/jasperserverInfo")
-    @ResponseStatus(HttpStatus.OK)
-    public List<String> jasperserverInfo() {
-        return Arrays.asList(jasperserverURL, jasperserverUser, jasperserverPassword);
-    }
 
     @GetMapping("/api/serverUrl")
     @ResponseStatus(HttpStatus.OK)

@@ -39,11 +39,6 @@ public class StrategicIndicatorsController {
         return "StrategicIndicators/HistoricChart";
     }
 
-    @RequestMapping("/StrategicIndicators/PredictionChart")
-    public String PredictionChart(){
-        return "StrategicIndicators/PredictionChart";
-    }
-
     @RequestMapping("/StrategicIndicators/New")
     public String NewStrategicIndicator(){
         if (qmasi.isCategoriesEmpty() && qmaqf.isCategoriesEmpty())

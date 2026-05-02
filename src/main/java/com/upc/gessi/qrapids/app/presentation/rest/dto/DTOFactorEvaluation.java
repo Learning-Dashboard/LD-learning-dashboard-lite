@@ -28,7 +28,6 @@ public class DTOFactorEvaluation {
     private List<String> strategic_indicators;
     private Pair<Float, Float> confidence80;
     private Pair<Float, Float> confidence95;
-    private String forecastingError;
     private int mismatchDays;
     private List<String> missingMetrics;
     private String type;
@@ -81,12 +80,6 @@ public class DTOFactorEvaluation {
         setRationale(rationale);
         setConfidence80(confidence80);
         setConfidence95(confidence95);
-    }
-
-    public DTOFactorEvaluation(String id, String name, String forecastingError) {
-        this.id = id;
-        this.name = name;
-        this.forecastingError = forecastingError;
     }
 
     /**
@@ -170,14 +163,6 @@ public class DTOFactorEvaluation {
 
     public List<String> getStrategicIndicators() {
         return strategic_indicators;
-    }
-
-    public String getForecastingError() {
-        return forecastingError;
-    }
-
-    public void setForecastingError(String forecastingError) {
-        this.forecastingError = forecastingError;
     }
 
     public Pair<Float, Float> getConfidence80() {

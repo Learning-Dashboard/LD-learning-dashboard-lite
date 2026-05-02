@@ -17,8 +17,6 @@ public interface AlertRepository extends JpaRepository<Alert, Long> {
     Alert findAlertById(Long id);
     List<Alert> findAllByProjectId(Long projectId);
     Alert findTopByProjectIdAndAffectedIdAndAffectedTypeAndTypeAndDateLessThanOrderByIdDesc(Long projectId, String affectedId, String affectedType, AlertType type, Date startDayDate);
-    Alert findAlertByProjectIdAndAffectedIdAndAffectedTypeAndTypeAndPredictionTechniqueAndPredictionDateAndDateGreaterThanEqualAndDateLessThan(
-            Long projectId, String affectedId, String affectedType, AlertType type, String technique, Date predictionDate, Date startDayDate, Date nowDate);
     Alert findAlertByProjectIdAndAffectedIdAndAffectedTypeAndTypeAndDateGreaterThanEqualAndDateLessThan(
             Long projectId, String affectedId, String affectedType, AlertType type, Date startDayDate, Date nowDate);
     int countByProjectIdAndStatus(Long projectId, AlertStatus status);

@@ -194,21 +194,6 @@ public class Metrics {
         }
     }
 
-    @RequestMapping("/api/metrics/prediction")
-    @ResponseStatus(HttpStatus.OK)
-    public List<DTOMetricEvaluation> getMetricsPredictionData(@RequestParam(value = "prj") String prj, @RequestParam(value = "profile", required = false) String profile, @RequestParam("technique") String technique, @RequestParam("horizon") String horizon) throws IOException {
-        try {
-            List<DTOMetricEvaluation> currentEvaluation = metricsController.getAllMetricsCurrentEvaluation(prj, profile);
-            return metricsController.getMetricsPrediction(currentEvaluation, prj, technique, "7", horizon);
-        } catch (MongoException e) {
-            logger.error(e.getMessage(), e);
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format(Messages.PROJECT_NOT_FOUND, prj));
-        } catch (IOException e) {
-            logger.error(e.getMessage(), e);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, Messages.INTERNAL_SERVER_ERROR + e.getMessage());
-        }
-    }
-
     @GetMapping("/api/metrics/currentDate")
     @ResponseStatus(HttpStatus.OK)
     public LocalDate getCurrentDate(@RequestParam(value = "prj") String prj, @RequestParam(value = "profile", required = false) String profile) {

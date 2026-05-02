@@ -45,8 +45,4 @@ public class DetailedStrategicIndicatorsController {
         return "DetailedStrategicIndicators/HistoricChart";
     }
 
-    @RequestMapping("/DetailedStrategicIndicators/PredictionChart")
-    public String PredictionChart(){
-        return "DetailedStrategicIndicators/PredictionChart";
-    }
 }

@@ -25,11 +25,6 @@ public class QualityFactorsController {
         return "QualityFactors/HistoricChart";
     }
 
-    @RequestMapping("/QualityFactors/PredictionChart")
-    public String PredictionChart(){
-        return "QualityFactors/PredictionChart";
-    }
-
     @RequestMapping("/QualityFactors/Configuration")
     public String Config(){
         return "QualityFactors/AdditionalScreens/QualityFactorsConfig";

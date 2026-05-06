@@ -1,0 +1,23 @@
+name: Restrict PR Source
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  check-branch:
+    name: Require dev into main
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Fail if PR is not from dev
+        env:
+          GITHUB_HEAD_REF: ${{ github.head_ref }}
+        run: |
+          if [[ "$GITHUB_HEAD_REF" != "dev" ]]; then
+            echo "PRs into main must come from the dev branch only."
+            exit 1
+          fi

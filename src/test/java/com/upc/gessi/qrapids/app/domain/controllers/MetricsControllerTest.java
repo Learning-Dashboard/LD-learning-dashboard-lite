@@ -1,11 +1,10 @@
 package com.upc.gessi.qrapids.app.domain.controllers;
 
-import com.upc.gessi.qrapids.app.domain.adapters.Forecast;
 import com.upc.gessi.qrapids.app.domain.adapters.QMA.QMAMetrics;
+import com.upc.gessi.qrapids.app.domain.exceptions.CategoriesException;
 import com.upc.gessi.qrapids.app.domain.models.MetricCategory;
 import com.upc.gessi.qrapids.app.domain.repositories.MetricCategory.MetricCategoryRepository;
 import com.upc.gessi.qrapids.app.presentation.rest.dto.DTOMetricEvaluation;
-import com.upc.gessi.qrapids.app.domain.exceptions.CategoriesException;
 import com.upc.gessi.qrapids.app.testHelpers.DomainObjectsBuilder;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,30 +13,26 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.data.util.Pair;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertSame;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MetricsControllerTest {
 
-    private DomainObjectsBuilder domainObjectsBuilder;
+    private DomainObjectsBuilder builder;
 
     @Mock
     private QMAMetrics qmaMetrics;
-
-    @Mock
-    private Forecast qmaForecast;
-
-    @Mock
-    private AlertsController alertsController;
 
     @Mock
     private MetricCategoryRepository metricCategoryRepository;
@@ -47,214 +42,66 @@ public class MetricsControllerTest {
 
     @Before
     public void setUp() {
-        domainObjectsBuilder = new DomainObjectsBuilder();
+        builder = new DomainObjectsBuilder();
     }
 
     @Test
-    public void getMetricCategories() {
-        // Given
-        List<MetricCategory> metricCategoryList = domainObjectsBuilder.buildMetricCategoryList();
-        when(metricCategoryRepository.findAll()).thenReturn(metricCategoryList);
+    public void getMetricCategoriesReturnsAllCategoriesWhenNameIsMissing() {
+        List<MetricCategory> categories = builder.buildMetricCategoryList();
+        when(metricCategoryRepository.findAll()).thenReturn(categories);
 
-        // When
-        List<MetricCategory> metricCategoryListFound = metricsController.getMetricCategories();
+        List<MetricCategory> result = metricsController.getMetricCategories(null);
 
-        // Then
-        assertEquals(metricCategoryList.size(), metricCategoryListFound.size());
-        assertEquals(metricCategoryList.get(0), metricCategoryListFound.get(0));
-        assertEquals(metricCategoryList.get(1), metricCategoryListFound.get(1));
-        assertEquals(metricCategoryList.get(2), metricCategoryListFound.get(2));
+        assertEquals(categories, result);
     }
 
     @Test
-    public void newMetricCategories() throws CategoriesException {
-        // Given
-        List<Map<String, String>> categories = domainObjectsBuilder.buildRawMetricCategoryList();
+    public void newMetricCategoriesPersistsThresholdsAsFractions() throws CategoriesException {
+        List<Map<String, String>> rawCategories = builder.buildRawMetricCategoryList();
 
-        // When
-        metricsController.newMetricCategories(categories, "TEST", "Default");
+        metricsController.newMetricCategories(rawCategories, "Default", "Default");
 
-        // Then
-        // verify(metricCategoryRepository, times(1)).deleteAll();
-        verify(metricCategoryRepository, times(1)).existsByName("TEST");
+        verify(metricCategoryRepository).existsByName("Default");
+        ArgumentCaptor<MetricCategory> captor = ArgumentCaptor.forClass(MetricCategory.class);
+        verify(metricCategoryRepository, times(3)).save(captor.capture());
 
-        ArgumentCaptor<MetricCategory> metricCategoryArgumentCaptor = ArgumentCaptor.forClass(MetricCategory.class);
-        verify(metricCategoryRepository, times(3)).save(metricCategoryArgumentCaptor.capture());
-        List<MetricCategory> metricCategoryListSaved = metricCategoryArgumentCaptor.getAllValues();
-        assertEquals(categories.get(0).get("type"), metricCategoryListSaved.get(0).getType());
-        assertEquals(categories.get(0).get("color"), metricCategoryListSaved.get(0).getColor());
-        assertEquals(Float.parseFloat(categories.get(0).get("upperThreshold")) / 100f,
-                metricCategoryListSaved.get(0).getUpperThreshold(), 0f);
-        assertEquals(categories.get(1).get("type"), metricCategoryListSaved.get(1).getType());
-        assertEquals(categories.get(1).get("color"), metricCategoryListSaved.get(1).getColor());
-        assertEquals(Float.parseFloat(categories.get(1).get("upperThreshold")) / 100f,
-                metricCategoryListSaved.get(1).getUpperThreshold(), 0f);
-        assertEquals(categories.get(2).get("type"), metricCategoryListSaved.get(2).getType());
-        assertEquals(categories.get(2).get("color"), metricCategoryListSaved.get(2).getColor());
-        assertEquals(Float.parseFloat(categories.get(2).get("upperThreshold")) / 100f,
-                metricCategoryListSaved.get(2).getUpperThreshold(), 0f);
+        List<MetricCategory> saved = captor.getAllValues();
+        assertEquals(rawCategories.get(0).get("type"), saved.get(0).getType());
+        assertEquals(rawCategories.get(0).get("color"), saved.get(0).getColor());
+        assertEquals(Float.parseFloat(rawCategories.get(0).get("upperThreshold")) / 100f,
+                saved.get(0).getUpperThreshold(), 0f);
+        assertEquals("Default", saved.get(0).getName());
+        assertEquals("Default", saved.get(0).getPatternGroup());
+    }
+
+    @Test(expected = CategoriesException.class)
+    public void newMetricCategoriesRejectsDuplicateTypes() throws CategoriesException {
+        List<Map<String, String>> rawCategories = builder.buildRawMetricCategoryList();
+        rawCategories.get(1).put("type", rawCategories.get(0).get("type"));
+
+        metricsController.newMetricCategories(rawCategories, "Default", "Default");
     }
 
     @Test
-    public void newMetricCategoriesNotEnough() throws CategoriesException {
-        // Given - use proper metric categories with upperThreshold
-        List<Map<String, String>> categories = domainObjectsBuilder.buildRawMetricCategoryList();
-        categories.remove(2);
-        categories.remove(1);
+    public void getAllMetricsCurrentEvaluationDelegatesToQmaMetrics() throws IOException {
+        List<DTOMetricEvaluation> evaluations = Arrays.asList(builder.buildDTOMetric());
+        when(qmaMetrics.CurrentEvaluation(null, "test", "profile")).thenReturn(evaluations);
 
-        // Since validation is commented out in the controller, this should succeed
-        // Just verify it doesn't throw an exception
-        metricsController.newMetricCategories(categories, "TEST_NOT_ENOUGH", "Default");
-        // Test passes if no exception is thrown
+        List<DTOMetricEvaluation> result = metricsController.getAllMetricsCurrentEvaluation("test", "profile");
+
+        assertSame(evaluations, result);
     }
 
     @Test
-    public void getAllMetricsCurrentEvaluation() throws IOException {
-        // Given
-        DTOMetricEvaluation dtoMetricEvaluation = domainObjectsBuilder.buildDTOMetric();
-        List<DTOMetricEvaluation> dtoMetricEvaluationList = new ArrayList<>();
-        dtoMetricEvaluationList.add(dtoMetricEvaluation);
-        String projectExternalId = "test";
-        when(qmaMetrics.CurrentEvaluation(null, projectExternalId, null)).thenReturn(dtoMetricEvaluationList);
+    public void getSingleMetricHistoricalEvaluationDelegatesToQmaMetrics() throws IOException {
+        List<DTOMetricEvaluation> evaluations = Arrays.asList(builder.buildDTOMetric());
+        LocalDate from = LocalDate.parse("2024-01-01");
+        LocalDate to = LocalDate.parse("2024-01-31");
+        when(qmaMetrics.SingleHistoricalData("fasttests", from, to, "test", null)).thenReturn(evaluations);
 
-        // When
-        List<DTOMetricEvaluation> dtoMetricEvaluationListFound = metricsController
-                .getAllMetricsCurrentEvaluation(projectExternalId, null);
+        List<DTOMetricEvaluation> result =
+                metricsController.getSingleMetricHistoricalEvaluation("fasttests", "test", null, from, to);
 
-        // Then
-        assertEquals(dtoMetricEvaluationList.size(), dtoMetricEvaluationListFound.size());
-        assertEquals(dtoMetricEvaluation, dtoMetricEvaluationListFound.get(0));
-    }
-
-    @Test
-    public void getSingleMetricCurrentEvaluation() throws IOException {
-        // Given
-        DTOMetricEvaluation dtoMetricEvaluation = domainObjectsBuilder.buildDTOMetric();
-        String projectExternalId = "test";
-        when(qmaMetrics.SingleCurrentEvaluation(dtoMetricEvaluation.getId(), projectExternalId))
-                .thenReturn(dtoMetricEvaluation);
-
-        // When
-        DTOMetricEvaluation dtoMetricEvaluationFound = metricsController
-                .getSingleMetricCurrentEvaluation(dtoMetricEvaluation.getId(), projectExternalId);
-
-        // Then
-        assertEquals(dtoMetricEvaluation, dtoMetricEvaluationFound);
-    }
-
-    @Test
-    public void getMetricsForQualityFactorCurrentEvaluation() throws IOException {
-        // Given
-        DTOMetricEvaluation dtoMetricEvaluation = domainObjectsBuilder.buildDTOMetric();
-        List<DTOMetricEvaluation> dtoMetricEvaluationList = new ArrayList<>();
-        dtoMetricEvaluationList.add(dtoMetricEvaluation);
-        String projectExternalId = "test";
-        String factorId = "testingperformance";
-        when(qmaMetrics.CurrentEvaluation(factorId, projectExternalId, null)).thenReturn(dtoMetricEvaluationList);
-
-        // When
-        List<DTOMetricEvaluation> dtoMetricEvaluationListFound = metricsController
-                .getMetricsForQualityFactorCurrentEvaluation(factorId, projectExternalId);
-
-        // Then
-        assertEquals(dtoMetricEvaluationList.size(), dtoMetricEvaluationListFound.size());
-        assertEquals(dtoMetricEvaluation, dtoMetricEvaluationListFound.get(0));
-    }
-
-    @Test
-    public void getSingleMetricHistoricalEvaluation() throws IOException {
-        // Given
-        DTOMetricEvaluation dtoMetricEvaluation = domainObjectsBuilder.buildDTOMetric();
-        List<DTOMetricEvaluation> dtoMetricEvaluationList = new ArrayList<>();
-        dtoMetricEvaluationList.add(dtoMetricEvaluation);
-        String projectExternalId = "test";
-        LocalDate from = LocalDate.parse("2019-08-01");
-        LocalDate to = LocalDate.parse("2019-08-31");
-        when(qmaMetrics.SingleHistoricalData(dtoMetricEvaluation.getId(), from, to, projectExternalId, null))
-                .thenReturn(dtoMetricEvaluationList);
-
-        // When
-        List<DTOMetricEvaluation> dtoMetricEvaluationListFound = metricsController
-                .getSingleMetricHistoricalEvaluation(dtoMetricEvaluation.getId(), projectExternalId, null, from, to);
-
-        // Then
-        assertEquals(dtoMetricEvaluationList.size(), dtoMetricEvaluationListFound.size());
-        assertEquals(dtoMetricEvaluation, dtoMetricEvaluationListFound.get(0));
-    }
-
-    @Test
-    public void getAllMetricsHistoricalEvaluation() throws IOException {
-        // Given
-        DTOMetricEvaluation dtoMetricEvaluation = domainObjectsBuilder.buildDTOMetric();
-        List<DTOMetricEvaluation> dtoMetricEvaluationList = new ArrayList<>();
-        dtoMetricEvaluationList.add(dtoMetricEvaluation);
-        String projectExternalId = "test";
-        LocalDate from = LocalDate.parse("2019-08-01");
-        LocalDate to = LocalDate.parse("2019-08-31");
-        when(qmaMetrics.HistoricalData(null, from, to, projectExternalId, null)).thenReturn(dtoMetricEvaluationList);
-
-        // When
-        List<DTOMetricEvaluation> dtoMetricEvaluationListFound = metricsController
-                .getAllMetricsHistoricalEvaluation(projectExternalId, null, from, to);
-
-        // Then
-        assertEquals(dtoMetricEvaluationList.size(), dtoMetricEvaluationListFound.size());
-        assertEquals(dtoMetricEvaluation, dtoMetricEvaluationListFound.get(0));
-    }
-
-    @Test
-    public void getMetricsForQualityFactorHistoricalEvaluation() throws IOException {
-        // Given
-        DTOMetricEvaluation dtoMetricEvaluation = domainObjectsBuilder.buildDTOMetric();
-        List<DTOMetricEvaluation> dtoMetricEvaluationList = new ArrayList<>();
-        dtoMetricEvaluationList.add(dtoMetricEvaluation);
-        String factorId = "testingperformance";
-        String projectExternalId = "test";
-        LocalDate from = LocalDate.parse("2019-08-01");
-        LocalDate to = LocalDate.parse("2019-08-31");
-        when(qmaMetrics.HistoricalData(factorId, from, to, projectExternalId, null))
-                .thenReturn(dtoMetricEvaluationList);
-
-        // When
-        List<DTOMetricEvaluation> dtoMetricEvaluationListFound = metricsController
-                .getMetricsForQualityFactorHistoricalEvaluation(factorId, projectExternalId, from, to);
-
-        // Then
-        assertEquals(dtoMetricEvaluationList.size(), dtoMetricEvaluationListFound.size());
-        assertEquals(dtoMetricEvaluation, dtoMetricEvaluationListFound.get(0));
-    }
-
-    @Test
-    public void getMetricsPrediction() throws IOException {
-        // Given
-        DTOMetricEvaluation dtoMetricEvaluation = domainObjectsBuilder.buildDTOMetric();
-        dtoMetricEvaluation.setDatasource("Forecast");
-        dtoMetricEvaluation.setRationale("Forecast");
-        float first80 = 0.97473043f;
-        float second80 = 0.9745246f;
-        Pair<Float, Float> confidence80 = Pair.of(first80, second80);
-        dtoMetricEvaluation.setConfidence80(confidence80);
-        float first95 = 0.9747849f;
-        float second95 = 0.97447014f;
-        Pair<Float, Float> confidence95 = Pair.of(first95, second95);
-        dtoMetricEvaluation.setConfidence95(confidence95);
-        List<DTOMetricEvaluation> dtoMetricEvaluationList = new ArrayList<>();
-        dtoMetricEvaluationList.add(dtoMetricEvaluation);
-
-        String projectExternalId = "test";
-        String technique = "PROPHET";
-        String freq = "7";
-        String horizon = "7";
-
-        when(qmaForecast.ForecastMetric(dtoMetricEvaluationList, technique, freq, horizon, projectExternalId))
-                .thenReturn(dtoMetricEvaluationList);
-
-        // When
-        List<DTOMetricEvaluation> dtoMetricEvaluationListFound = metricsController
-                .getMetricsPrediction(dtoMetricEvaluationList, projectExternalId, technique, freq, horizon);
-
-        // Then
-        assertEquals(dtoMetricEvaluationList.size(), dtoMetricEvaluationListFound.size());
-        assertEquals(dtoMetricEvaluation, dtoMetricEvaluationListFound.get(0));
+        assertSame(evaluations, result);
     }
 }

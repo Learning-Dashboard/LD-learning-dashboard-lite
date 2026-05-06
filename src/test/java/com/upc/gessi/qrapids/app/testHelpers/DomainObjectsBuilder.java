@@ -45,7 +45,7 @@ public class DomainObjectsBuilder {
         AlertType alertType = AlertType.TRESPASSED_THRESHOLD;
         float value = 0.4f;
         float threshold = 0.5f;
-        Alert alert = new Alert(value, threshold, alertType, project, affectedId, affectedType, null, null);
+        Alert alert = new Alert(value, threshold, alertType, project, affectedId, affectedType);
         alert.setId(alertId);
         return alert;
     }
@@ -384,7 +384,6 @@ public class DomainObjectsBuilder {
                 strategicIndicatorValuePair, strategicIndicatorRationale, dtoSIAssessmentList, LocalDate.now(),
                 datasource, strategicIndicator.getId(), categoriesDescription, false);
         dtoStrategicIndicatorEvaluation.setHasFeedback(false);
-        dtoStrategicIndicatorEvaluation.setForecastingError(null);
 
         return dtoStrategicIndicatorEvaluation;
     }
@@ -405,37 +404,6 @@ public class DomainObjectsBuilder {
         DTOMetricEvaluation dtoMetricEvaluation = new DTOMetricEvaluation(metricId, metricName, metricDescription, null,
                 "system",
                 metricRationale, qualityFactors, evaluationDate, metricValue);
-        List<DTOMetricEvaluation> dtoMetricEvaluationList = new ArrayList<>();
-        dtoMetricEvaluationList.add(dtoMetricEvaluation);
-
-        return new DTODetailedFactorEvaluation(factorId, factorDescription, factorName, dtoMetricEvaluationList,
-                "testType");
-    }
-
-    public DTODetailedFactorEvaluation buildDTOQualityFactorForPrediction() {
-        String factorId = "testingperformance";
-        String factorName = "Testing Performance";
-        String factorDescription = "Performance of the tests";
-
-        String metricId = "fasttests";
-        String metricName = "Fast Tests";
-        String metricDescription = "Percentage of tests under the testing duration threshold";
-        String metricDataSource = "Forecast";
-        Double metricValue = 0.8;
-        LocalDate evaluationDate = LocalDate.now();
-        String metricRationale = "Forecast";
-        List<String> qualityFactors = new ArrayList<>();
-        qualityFactors.add(factorId);
-        DTOMetricEvaluation dtoMetricEvaluation = new DTOMetricEvaluation(metricId, metricName, metricDescription,
-                metricDataSource, "system", metricRationale, qualityFactors, evaluationDate, metricValue.floatValue());
-        Double first80 = 0.97473043;
-        Double second80 = 0.9745246;
-        Pair<Float, Float> confidence80 = Pair.of(first80.floatValue(), second80.floatValue());
-        dtoMetricEvaluation.setConfidence80(confidence80);
-        Double first95 = 0.9747849;
-        Double second95 = 0.97447014;
-        Pair<Float, Float> confidence95 = Pair.of(first95.floatValue(), second95.floatValue());
-        dtoMetricEvaluation.setConfidence95(confidence95);
         List<DTOMetricEvaluation> dtoMetricEvaluationList = new ArrayList<>();
         dtoMetricEvaluationList.add(dtoMetricEvaluation);
 
@@ -519,7 +487,6 @@ public class DomainObjectsBuilder {
                 strategicIndicatorValuePair, strategicIndicatorRationale, dtoSIAssessmentList, date, datasource,
                 strategicIndicatorDbId, categoriesDescription, false);
         dtoStrategicIndicatorEvaluation.setHasFeedback(false);
-        dtoStrategicIndicatorEvaluation.setForecastingError(null);
         return dtoStrategicIndicatorEvaluation;
     }
 

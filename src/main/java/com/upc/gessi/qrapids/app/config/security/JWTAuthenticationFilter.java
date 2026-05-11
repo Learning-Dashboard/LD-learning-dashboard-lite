@@ -36,11 +36,12 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 	private SessionTimer sessionTimer;
 
 	// √Tools Auth
-	AuthTools authTools;
+	private final AuthTools authTools;
 
-	public JWTAuthenticationFilter(AuthenticationManager authenticationManager, UsersController usersController) {
+	public JWTAuthenticationFilter(AuthenticationManager authenticationManager, UsersController usersController, AuthTools authTools) {
 		this.authenticationManager = authenticationManager;
 		this.usersController=usersController;
+		this.authTools = authTools;
 	}
 
 	/**
@@ -100,14 +101,11 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 											FilterChain chain,
 											Authentication auth) throws IOException, ServletException {
 
-		// Auth tools
-		this.authTools = new AuthTools();
-
 		// Token creation
 		String token = Jwts.builder()
 				.setSubject(((org.springframework.security.core.userdetails.User) auth.getPrincipal()).getUsername())
 				.setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_JWT_TOKEN_TIME))
-				.signWith(SignatureAlgorithm.HS512, SECRET.getBytes())
+				.signWith(SignatureAlgorithm.HS512, authTools.getSigningKey())
 				.compact();
 
 		// Request origin

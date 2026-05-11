@@ -6,6 +6,7 @@ import com.upc.gessi.qrapids.app.domain.models.AppUser;
 import com.upc.gessi.qrapids.app.domain.repositories.AppUser.UserRepository;
 import com.upc.gessi.qrapids.app.domain.models.Route;
 import com.upc.gessi.qrapids.app.domain.repositories.Route.RouteRepository;
+import io.jsonwebtoken.JwtException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -29,7 +30,7 @@ import static com.upc.gessi.qrapids.app.config.security.SecurityConstants.*;
 
 public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 
-	private AuthTools authTools;
+	private final AuthTools authTools;
 
 	private RouteFilter routeFilter;
 
@@ -45,14 +46,11 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 
     private java.util.logging.Logger logger = java.util.logging.Logger.getLogger("navigation");
 
-	public JWTAuthorizationFilter(AuthenticationManager authManager) {
-		super(authManager);
-	}
-
-    public JWTAuthorizationFilter(AuthenticationManager authManager, UserRepository userRepository, RouteRepository routeRepository ) {
+    public JWTAuthorizationFilter(AuthenticationManager authManager, UserRepository userRepository, RouteRepository routeRepository, AuthTools authTools) {
         super(authManager);
         this.userRepository = userRepository;
         this.routeRepository = routeRepository;
+        this.authTools = authTools;
     }
 
 	/**
@@ -70,7 +68,6 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 
         SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
 
-        this.authTools = new AuthTools();
         this.routeFilter = new RouteFilter();
         // is an External request? true -> WebPage : false -> external
         // boolean origin = this.authTools.originRequest( req );
@@ -85,16 +82,23 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
         String cookie_token = this.authTools.getCookieToken( req, COOKIE_STRING );
         String token = "";
         String username = "";
+        boolean usingCookieToken = false;
         this.sessionTimer = SessionTimer.getInstance();
 
         if ( cookie_token != null && cookie_token != "" && !cookie_token.isEmpty() ) {
             // WeaApp Client internal application
 
-            authentication = this.authTools.tokenValidation( cookie_token );
-            token = cookie_token;
+            try {
+                authentication = this.authTools.tokenValidation( cookie_token );
+                token = cookie_token;
 
-            username = AuthTools.getUser(cookie_token);
-            sessionTimer.cancelTimer(cookie_token);
+                username = this.authTools.getUser(cookie_token);
+                sessionTimer.cancelTimer(cookie_token);
+                usingCookieToken = true;
+            } catch (JwtException | IllegalArgumentException e) {
+                logoutInvalidJwt(req, res, cookie_token, true);
+                return;
+            }
 
             logMessage(" Origin - WebApp ");
 
@@ -110,8 +114,13 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
                 return;
             }
 
-            authentication = getAuthentication( req );
-            token = req.getHeader( HEADER_STRING );
+            try {
+                authentication = getAuthentication( req );
+                token = req.getHeader( HEADER_STRING );
+            } catch (JwtException | IllegalArgumentException e) {
+                logoutInvalidJwt(req, res, token, false);
+                return;
+            }
 
             logMessage(" Origin - ApiCall ");
 
@@ -141,7 +150,12 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
         if( ! isAllowed ) {
 
             // User data from DB
-            user = this.userRepository.findByUsername( this.authTools.getUserToken( token ) );
+            try {
+                user = this.userRepository.findByUsername( this.authTools.getUserToken( token ) );
+            } catch (JwtException | IllegalArgumentException e) {
+                logoutInvalidJwt(req, res, token, usingCookieToken);
+                return;
+            }
 
 
             if ( user!=null && user.getAdmin() )
@@ -170,26 +184,22 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 
         } else {
 
-            // Request origin
-            boolean origin = this.authTools.originRequest( req );
+            if (usingCookieToken) {
+                clearAuthCookie(res);
 
-            Cookie cookie = new Cookie(COOKIE_STRING, null); // Not necessary, but saves bandwidth.
-            cookie.setHttpOnly(true);
-            cookie.setMaxAge(0); // Don't set to -1 or it will become a session cookie!
-            res.addCookie(cookie);
+                // Web Application
+                // Set token auth in HTTP Only cookie client.
+                Cookie qrapids_token_client = new Cookie(COOKIE_STRING, token);
 
-            // Web Application
-            // Set token auth in HTTP Only cookie client.
-            Cookie qrapids_token_client = new Cookie(COOKIE_STRING, token);
+                // Configuration
+                // Changed HttpOnly to false to read it from the application
+                qrapids_token_client.setHttpOnly(true);
+                qrapids_token_client.setMaxAge((int) EXPIRATION_COOKIE_TIME / 1000);
+                qrapids_token_client.setPath("/");
 
-            // Configuration
-            // Changed HttpOnly to false to read it from the application
-            qrapids_token_client.setHttpOnly(true);
-            qrapids_token_client.setMaxAge((int) EXPIRATION_COOKIE_TIME / 1000);
-            qrapids_token_client.setPath("/");
-
-            sessionTimer.startTimer(username, token, (int) EXPIRATION_COOKIE_TIME / 1000);
-            res.addCookie(qrapids_token_client);
+                sessionTimer.startTimer(username, token, (int) EXPIRATION_COOKIE_TIME / 1000);
+                res.addCookie(qrapids_token_client);
+            }
 
             DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
             LocalDateTime now = LocalDateTime.now();
@@ -206,6 +216,38 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 	private void logMessage (String message) {
         if (this.DEBUG)
             oldlogger.info(message);
+    }
+
+    private void logoutInvalidJwt(HttpServletRequest req,
+                                  HttpServletResponse res,
+                                  String token,
+                                  boolean redirectToLogin) throws IOException {
+        SecurityContextHolder.clearContext();
+        clearAuthCookie(res);
+
+        if (token != null && !token.isEmpty()) {
+            sessionTimer.cancelTimer(token);
+        }
+
+        if (req.getSession(false) != null) {
+            req.getSession(false).invalidate();
+        }
+
+        if (redirectToLogin) {
+            res.sendRedirect("/login?error=Session+expired");
+        } else {
+            res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            res.setContentType("application/json");
+            res.getWriter().write("{\"error\":\"Invalid JWT token\"}");
+        }
+    }
+
+    private void clearAuthCookie(HttpServletResponse res) {
+        Cookie cookie = new Cookie(COOKIE_STRING, null); // Not necessary, but saves bandwidth.
+        cookie.setHttpOnly(true);
+        cookie.setMaxAge(0); // Don't set to -1 or it will become a session cookie!
+        cookie.setPath("/");
+        res.addCookie(cookie);
     }
 
 	/**

@@ -48,6 +48,9 @@ public class AppUserController {
     @Autowired
     private QuestionRepository questionRepository;
 
+    @Autowired
+    private AuthTools authTools;
+
 	private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     // redirection url, after process finish
@@ -76,7 +79,7 @@ public class AppUserController {
         // Tools users validation
         // Current user -> session
         AppUser currenUser = this.userRepository.findByUsername(
-                AuthTools.getUser( token )
+                this.authTools.getUser( token )
         );
 
         List<UserGroup> userGroups = this.userGroupRepository.findAll();
@@ -229,8 +232,7 @@ public class AppUserController {
         if(userOptional.isPresent()) {
             AppUser user = userOptional.get();
             // Is current user
-            AuthTools authTools = new AuthTools();
-            String username = authTools.getUserToken( token );
+            String username = this.authTools.getUserToken( token );
 
             if ( username.equals(user.getUsername()))
                 return REDIRECT + this.redirectTo + ERROR_QUERY + "You can not delete the current user administrator".replace(" ","+");

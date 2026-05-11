@@ -1,23 +1,36 @@
 package com.upc.gessi.qrapids.app.config.libs;
 
+import com.upc.gessi.qrapids.app.config.security.JwtKeyProvider;
 import io.jsonwebtoken.Jwts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.stereotype.Component;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import java.security.Key;
 import java.util.ArrayList;
 
-import static com.upc.gessi.qrapids.app.config.security.SecurityConstants.SECRET;
 import static com.upc.gessi.qrapids.app.config.security.SecurityConstants.TOKEN_PREFIX;
 
 
+@Component
 public class AuthTools {
 
 	private final boolean DEBUG = false;
 
 	private Logger logger = LoggerFactory.getLogger(AuthTools.class);
+
+	private final Key signingKey;
+
+	public AuthTools(JwtKeyProvider jwtKeyProvider) {
+		this.signingKey = jwtKeyProvider.getSigningKey();
+	}
+
+	public Key getSigningKey() {
+		return signingKey;
+	}
 
 	/**
 	 * Origin validation (External application or WebApplication )
@@ -83,7 +96,7 @@ public class AuthTools {
 
 			// parse the token.
 			String user = Jwts.parser()
-					.setSigningKey(SECRET.getBytes())
+					.setSigningKey(signingKey)
 					.parseClaimsJws(token.replace(TOKEN_PREFIX, ""))
 					.getBody()
 					.getSubject();
@@ -102,13 +115,13 @@ public class AuthTools {
 	 * @param token
 	 * @return
 	 */
-	public static String getUserToken(String token) {
+	public String getUserToken(String token) {
 
 		if (token != null) {
 
 			// parse the token.
 			String user = Jwts.parser()
-					.setSigningKey(SECRET.getBytes())
+					.setSigningKey(signingKey)
 					.parseClaimsJws(token.replace(TOKEN_PREFIX, ""))
 					.getBody()
 					.getSubject();
@@ -120,7 +133,7 @@ public class AuthTools {
 	}
 
 	// get user entinty from database
-    public static String getUser( String token ) {
+    public String getUser( String token ) {
 
         // Obtención de nombre de usuario
         return getUserToken( token );

@@ -6,6 +6,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.upc.gessi.qrapids.app.config.libs.AuthTools;
 import org.springframework.web.servlet.DispatcherServlet;
+import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.util.WebUtils;
 import org.springframework.core.log.LogFormatUtils;
 import org.springframework.util.StringUtils;
@@ -21,9 +22,14 @@ public class LogDispatcherServlet extends DispatcherServlet {
     protected void doDispatch(HttpServletRequest request, HttpServletResponse response) throws Exception {
         super.doDispatch(request, response);
         String logURL = createLogRequest(request);
-        AuthTools authTools = new AuthTools();
+        WebApplicationContext context = getWebApplicationContext();
+        if (context == null) {
+            logRequest(logURL, null, null);
+            return;
+        }
+        AuthTools authTools = context.getBean(AuthTools.class);
         String cookie_token = authTools.getCookieToken( request, COOKIE_STRING );
-        String username = AuthTools.getUser(cookie_token);
+        String username = authTools.getUser(cookie_token);
         logRequest(logURL, username, cookie_token);
     }
 

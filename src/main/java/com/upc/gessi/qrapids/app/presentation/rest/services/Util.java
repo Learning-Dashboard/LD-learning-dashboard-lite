@@ -28,6 +28,7 @@ public class Util {
     @Autowired
     private UsersController usersController;
 
+    @Autowired
     private AuthTools authTools;
 
     @Value("${pabre.url}")
@@ -128,8 +129,7 @@ public class Util {
     @ResponseStatus(HttpStatus.OK)
     public List<String> getUserFromToken(@RequestParam(value = "id", required = false) Long id, HttpServletRequest request) {
         try {
-            AuthTools authTools = new AuthTools();
-            String token = authTools.getCookieToken(request, COOKIE_STRING);
+            String token = this.authTools.getCookieToken(request, COOKIE_STRING);
             //String token = "";
             List<Project> l = new ArrayList<>(usersController.getAllowedProjects(token, id));
             List list = new ArrayList<String>();

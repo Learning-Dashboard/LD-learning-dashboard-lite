@@ -21,12 +21,6 @@ public class RouteFilter {
 
     private Logger logger = LoggerFactory.getLogger(RouteFilter.class);
 
-    AuthTools authTools;
-
-    public RouteFilter() {
-        this.authTools = new AuthTools();
-    }
-
     /**
      * Main function, filter function, cleaning and comparation with user's allowed routes
      * @param originRequest

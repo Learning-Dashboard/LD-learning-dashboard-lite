@@ -27,9 +27,22 @@ gradlew war
 ```
 After the build is done the WAR file can be found at the __build/libs__ directory
 
+## Docker setup
+The Learning Dashboard can be run using Docker. You can find the Dockerfile in the repository, and you can build the image with the following command:
+
+```
+docker build -t learning-dashboard .
+```
+After building the image, you can run the container with the following command:
+
+```
+docker run -p 8888:8080 learning-dashboard
+```
+
 ## Documentation
 
 You can find the user documentation in the repository [Wiki](https://github.com/Learning-Dashboard/LD-learning-dashboard/wiki) and the technical documentation of the RESTful API [here](https://learning-dashboard.github.io/LD-learning-dashboard).
+
 
 ## Licensing
 

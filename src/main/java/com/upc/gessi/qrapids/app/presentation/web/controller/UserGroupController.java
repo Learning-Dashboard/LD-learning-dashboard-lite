@@ -50,6 +50,9 @@ public class UserGroupController {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private AuthTools authTools;
+
     private Logger logger = LoggerFactory.getLogger(UserGroupController.class);
 
     private final String redirectTo = "/usergroups";
@@ -70,7 +73,7 @@ public class UserGroupController {
         // Tools users validation
         // Current user -> session
         AppUser currenUser = this.userRepository.findByUsername(
-                AuthTools.getUser( token )
+                this.authTools.getUser( token )
         );
 
         ModelAndView view = new ModelAndView("/UserGroup/index");
@@ -113,7 +116,7 @@ public class UserGroupController {
 
         // Current user -> session
         AppUser currenUser = this.userRepository.findByUsername(
-                AuthTools.getUser( token )
+                this.authTools.getUser( token )
         );
 
         UserGroup userGroup = this.userGroupRepository.getOne( id );
@@ -156,7 +159,7 @@ public class UserGroupController {
 
         // Current user -> session
         AppUser currenUser = this.userRepository.findByUsername(
-                AuthTools.getUser( token )
+                this.authTools.getUser( token )
         );
 
         try {

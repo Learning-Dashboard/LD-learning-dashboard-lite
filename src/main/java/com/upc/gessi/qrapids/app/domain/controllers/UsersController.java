@@ -26,6 +26,8 @@ public class UsersController {
 
     @Autowired
     private ProjectRepository projectRepository;
+
+    @Autowired
     private AuthTools authTools;
 
     public Set<Project> getAllowedProjects(String token, Long id) {

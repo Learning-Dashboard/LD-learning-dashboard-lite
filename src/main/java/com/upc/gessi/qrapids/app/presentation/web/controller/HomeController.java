@@ -38,6 +38,9 @@ public class HomeController {
     @Autowired
     QuestionRepository questionRepository;
 
+    @Autowired
+    private AuthTools authTools;
+
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     /**
@@ -71,7 +74,7 @@ public class HomeController {
 
         // Current user -> session !important
         AppUser currenUser = this.userRepository.findByUsername(
-                AuthTools.getUser( token )
+                this.authTools.getUser( token )
         );
 
         if( bCryptPasswordEncoder.matches( currenUser.getEmail(), currenUser.getPassword() ) ) {

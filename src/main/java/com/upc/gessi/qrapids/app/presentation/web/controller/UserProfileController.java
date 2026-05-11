@@ -32,6 +32,9 @@ public class UserProfileController {
     @Autowired
     private UserGroupRepository userGroupRepository;
 
+    @Autowired
+    private AuthTools authTools;
+
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     private Logger logger = LoggerFactory.getLogger(UserProfileController.class);
@@ -51,8 +54,7 @@ public class UserProfileController {
     @GetMapping
     private ModelAndView index(@CookieValue(COOKIE_STRING) String token, Pageable page) {
         // Tools users validation
-        AuthTools authTools = new AuthTools();
-        String userName = authTools.getUserToken( token );
+        String userName = this.authTools.getUserToken( token );
 
         ModelAndView view = new ModelAndView("/AppUser/Profile");
         try{
@@ -120,4 +122,3 @@ public class UserProfileController {
     }
 
 }
-

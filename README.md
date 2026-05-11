@@ -36,8 +36,71 @@ docker build -t learning-dashboard .
 After building the image, you can run the container with the following command:
 
 ```
-docker run -p 8888:8080 learning-dashboard
+docker run -p 8888:8080 \
+  -e SECURITY_JWT_SECRET="$(openssl rand -base64 64)" \
+  learning-dashboard
 ```
+
+## Deploying with the parent Docker Compose
+
+When this project is deployed from the parent `learning-dashboard-infraestructure` / `learning-dashboard-deploy` directory, `docker compose up -d --build` does **not** rebuild the Learning Dashboard WAR.
+
+In the current setup, Docker Compose rebuilds the `tomcat` Docker image from the parent `node-tomcat/dockerfile`, but that Dockerfile only defines the Tomcat base image:
+
+```dockerfile
+FROM tomcat:9.0.16-jre8
+```
+
+It does not run Gradle, compile this project, or generate `learning-dashboard-3.3.war`. The parent Compose file also mounts Tomcat webapps from the host:
+
+```yaml
+${COMPOSE_PROJECT_HOME}/www/api/public:/usr/local/tomcat/webapps
+```
+
+That means Tomcat serves whatever WAR is physically present at:
+
+```bash
+www/api/public/ROOT.war
+```
+
+After changing Java code in this repository, rebuild and redeploy the WAR explicitly:
+
+```bash
+cd LD-learning-dashboard-lite
+
+GRADLE_USER_HOME=.gradle-cache ./gradlew bootWar -x test --no-daemon
+
+cd ..
+
+docker compose stop tomcat
+
+rm -rf www/api/public/ROOT
+cp LD-learning-dashboard-lite/build/libs/learning-dashboard-3.3.war www/api/public/ROOT.war
+
+docker compose up -d --force-recreate --no-deps tomcat
+```
+
+To verify that the deployed WAR contains the latest JWT security changes:
+
+```bash
+unzip -l www/api/public/ROOT.war | grep JwtKeyProvider
+```
+
+If `JwtKeyProvider.class` appears, the deployed WAR contains the JWT key provider code.
+
+Mental model:
+
+```text
+Java changes in the dashboard -> gradlew bootWar + copy ROOT.war
+Dockerfile/node-tomcat changes -> docker compose up -d --build tomcat
+.env changes -> docker compose up -d --force-recreate tomcat
+```
+
+`--build` only rebuilds Docker images. It does not rebuild Gradle artifacts that live outside the Dockerfile.
+
+## Security configuration
+
+JWT signing requires `security.jwt.secret`, supplied externally as configuration or as the `SECURITY_JWT_SECRET` environment variable. Use a random value of at least 64 UTF-8 bytes for HS512 and do not commit it to source control.
 
 ## Documentation
 
@@ -54,4 +117,3 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 ## Contact
 
 For problems regarding this component, please open an issue in the [issues section](https://github.com/Learning-Dashboard/LD-learning-dashboard/issues).
-

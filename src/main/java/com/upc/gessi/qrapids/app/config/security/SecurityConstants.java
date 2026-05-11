@@ -2,8 +2,6 @@ package com.upc.gessi.qrapids.app.config.security;
 
 public class SecurityConstants {
 
-    // change value configuration
-	public static final String SECRET = "SecretKeyToGenJWTs"; // Seed
 	public static final long EXPIRATION_COOKIE_TIME = 900_000; // 15 minutes (in miliseconds)
 	public static final long EXPIRATION_JWT_TOKEN_TIME = 86_400_000; // 24 hours (in miliseconds)
 	//public static final long EXPIRATION_COOKIE_TIME = 900_000; // 15 minutes (in miliseconds)

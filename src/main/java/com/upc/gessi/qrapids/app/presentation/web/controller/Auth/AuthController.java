@@ -50,9 +50,10 @@ public class AuthController {
 	@Autowired
 	UserGroupRepository userGroupRepository;
 
-	@Autowired
+    @Autowired
     QuestionRepository questionRepository;
 
+    @Autowired
     private AuthTools authTools;
     private long FirstUserRequired = 0;
     private BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -90,13 +91,11 @@ public class AuthController {
             session.invalidate();
         }
 
-        // Auth client
-        this.authTools = new AuthTools();
         String cookie_token = this.authTools.getCookieToken( request, COOKIE_STRING );
         // Tools users validation
         // Current user -> session
         AppUser currenUser = this.userRepository.findByUsername(
-                AuthTools.getUser( cookie_token )
+                this.authTools.getUser( cookie_token )
         );
 
         // AppUser login request register

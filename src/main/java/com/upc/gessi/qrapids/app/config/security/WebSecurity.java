@@ -14,6 +14,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -47,6 +48,9 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
     @Value("${security.api.enable}")
     private boolean apiEnable;
 
+    @Value("${ld.api.key:${LD_API_KEY:}}")
+    private String ldApiKey;
+
 	public WebSecurity(UserDetailsService userDetailsService, BCryptPasswordEncoder bCryptPasswordEncoder) {
 		this.userDetailsService = userDetailsService;
 		this.bCryptPasswordEncoder = bCryptPasswordEncoder;
@@ -73,6 +77,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 				.and()
 
 				.addFilter(new JWTAuthenticationFilter(authenticationManager(),usersController, authTools))
+				.addFilterBefore(new LdApiKeyFilter(apiEnable, ldApiKey), BasicAuthenticationFilter.class)
 				.addFilter(new JWTAuthorizationFilter(authenticationManager(), userRepository, routeRepository, authTools ))
 
 				// this disables session creation on Spring Security

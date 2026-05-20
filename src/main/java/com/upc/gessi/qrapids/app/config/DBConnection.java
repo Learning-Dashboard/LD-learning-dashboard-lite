@@ -39,10 +39,4 @@ public class DBConnection {
         return DriverManager.getConnection(url, username, password);
 
     }
-
-/* Gessi3 server
-    public static String getURL() {return "jdbc:postgresql://localhost:5432/riscoss";}
-    public static String getUser() {return "riscoss";}
-    public static String getPass() {return "5lG6shrxAt";}
-*/
 }

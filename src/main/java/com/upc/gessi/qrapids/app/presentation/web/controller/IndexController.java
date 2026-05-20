@@ -69,7 +69,6 @@ public class IndexController implements ErrorController {
         return view;
     }
 
-    @Override
     public String getErrorPath() {
         return PATH;
     }

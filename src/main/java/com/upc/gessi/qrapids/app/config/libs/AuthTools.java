@@ -95,8 +95,9 @@ public class AuthTools {
 		if (token != null) {
 
 			// parse the token.
-			String user = Jwts.parser()
+			String user = Jwts.parserBuilder()
 					.setSigningKey(signingKey)
+					.build()
 					.parseClaimsJws(token.replace(TOKEN_PREFIX, ""))
 					.getBody()
 					.getSubject();
@@ -120,8 +121,9 @@ public class AuthTools {
 		if (token != null) {
 
 			// parse the token.
-			String user = Jwts.parser()
+			String user = Jwts.parserBuilder()
 					.setSigningKey(signingKey)
+					.build()
 					.parseClaimsJws(token.replace(TOKEN_PREFIX, ""))
 					.getBody()
 					.getSubject();

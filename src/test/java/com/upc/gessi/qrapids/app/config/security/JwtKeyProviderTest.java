@@ -26,11 +26,12 @@ public class JwtKeyProviderTest {
         JwtKeyProvider jwtKeyProvider = new JwtKeyProvider(secretOfLength(64));
         String token = Jwts.builder()
                 .setSubject("admin")
-                .signWith(SignatureAlgorithm.HS512, jwtKeyProvider.getSigningKey())
+                .signWith(jwtKeyProvider.getSigningKey(), SignatureAlgorithm.HS512)
                 .compact();
 
-        String subject = Jwts.parser()
+        String subject = Jwts.parserBuilder()
                 .setSigningKey(jwtKeyProvider.getSigningKey())
+                .build()
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();

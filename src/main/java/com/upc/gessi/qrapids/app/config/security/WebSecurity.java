@@ -19,6 +19,11 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.context.annotation.Bean;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import static com.upc.gessi.qrapids.app.config.security.SecurityConstants.LOGIN_VIEW_URL;
 import static com.upc.gessi.qrapids.app.config.security.SecurityConstants.WELCOME_VIEW_URL;
 import static com.upc.gessi.qrapids.app.config.security.SecurityConstants.PUBLIC_MATCHERS;
@@ -46,6 +51,21 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 
     @Value("${security.api.enable}")
     private boolean apiEnable;
+
+	@Value("${cors.allowed.origins:}")
+	private String corsAllowedOrigins;
+
+	@Value("${cors.allowed.methods:GET,POST,PUT,PATCH,DELETE,OPTIONS}")
+	private String corsAllowedMethods;
+
+	@Value("${cors.allowed.headers:Authorization,Content-Type,X-Requested-With,Accept,Origin,X-LD-API-Key}")
+	private String corsAllowedHeaders;
+
+	@Value("${cors.exposed.headers:Authorization,Location}")
+	private String corsExposedHeaders;
+
+	@Value("${cors.allow.credentials:false}")
+	private boolean corsAllowCredentials;
 
 	public WebSecurity(UserDetailsService userDetailsService, BCryptPasswordEncoder bCryptPasswordEncoder) {
 		this.userDetailsService = userDetailsService;
@@ -89,10 +109,44 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 
 	@Bean
 	CorsConfigurationSource corsConfigurationSource() {
-
 		final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/**", buildCorsConfiguration(
+				corsAllowedOrigins,
+				corsAllowedMethods,
+				corsAllowedHeaders,
+				corsExposedHeaders,
+				corsAllowCredentials));
 
-		source.registerCorsConfiguration("/**", new CorsConfiguration().applyPermitDefaultValues());
 		return source;
+	}
+
+	static CorsConfiguration buildCorsConfiguration(String allowedOrigins,
+													String allowedMethods,
+													String allowedHeaders,
+													String exposedHeaders,
+													boolean allowCredentials) {
+		List<String> origins = splitCommaSeparatedValues(allowedOrigins);
+		if (allowCredentials && origins.contains("*")) {
+			throw new IllegalStateException("cors.allowed.origins cannot contain '*' when cors.allow.credentials=true");
+		}
+
+		CorsConfiguration configuration = new CorsConfiguration();
+		configuration.setAllowedOrigins(origins);
+		configuration.setAllowedMethods(splitCommaSeparatedValues(allowedMethods));
+		configuration.setAllowedHeaders(splitCommaSeparatedValues(allowedHeaders));
+		configuration.setExposedHeaders(splitCommaSeparatedValues(exposedHeaders));
+		configuration.setAllowCredentials(allowCredentials);
+		configuration.setMaxAge(3600L);
+		return configuration;
+	}
+
+	static List<String> splitCommaSeparatedValues(String value) {
+		if (value == null || value.trim().isEmpty()) {
+			return Collections.emptyList();
+		}
+		return Arrays.stream(value.split(","))
+				.map(String::trim)
+				.filter(item -> !item.isEmpty())
+				.collect(Collectors.toList());
 	}
 }

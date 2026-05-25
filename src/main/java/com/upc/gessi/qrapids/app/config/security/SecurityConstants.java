@@ -10,6 +10,7 @@ public class SecurityConstants {
 
 	public static final String TOKEN_PREFIX = "Bearer "; // API header validation
 	public static final String HEADER_STRING = "Authorization"; // Request header
+	public static final String LD_API_KEY_HEADER = "X-LD-API-Key"; // Service-to-service API key header
 	public static final String COOKIE_STRING = "xFOEto4jYAjdMeR3Pas6_"; // hashed name cookie
 
     /**

@@ -5,8 +5,6 @@ console.log(sessionStorage.getItem("profile_id"));
 var profileId = sessionStorage.getItem("profile_id");
 var url = parseURLSimple("../api/strategicIndicators/qualityFactors/historical?profile="+profileId);
 
-var qualityModelSIMetrics = new Map();
-
 const DEFAULT_CATEGORY = "Default";
 
 //initialize data vectors
@@ -18,8 +16,6 @@ var printMetrics = false;
 var categories = [];
 
 function getData() {
-    getQualityModel();
-    getDecisions();
     texts = [];
     ids = [];
     labels = [];
@@ -66,17 +62,6 @@ function getData() {
                             );
                         }
                     }
-                    var decisionsAdd = [];
-                    var decisionsIgnore = [];
-                    buildDecisionVectors(decisionsAdd, decisionsIgnore, data[i].id);
-                    if (decisionsAdd.length > 0) {
-                        value[i].push(decisionsAdd);
-                        labels[i].push("Added decisions");
-                    }
-                    if (decisionsIgnore.length > 0) {
-                        value[i].push(decisionsIgnore);
-                        labels[i].push("Ignored decisions");
-                    }
                 } else {
                     data.splice(i, 1);
                     --i;
@@ -85,61 +70,6 @@ function getData() {
             getFactorsCategories();
         }
     });
-}
-
-function getQualityModel () {
-
-    console.log("sessionStorage: profile_id");
-    console.log(sessionStorage.getItem("profile_id"));
-    var profileId = sessionStorage.getItem("profile_id");
-
-    jQuery.ajax({
-        dataType: "json",
-        type: "GET",
-        url : "../api/strategicIndicators/qualityModel?profile="+profileId,
-        async: false,
-        success: function (data) {
-            data.forEach(function (strategicIndicator) {
-                var metrics = [];
-                strategicIndicator.factors.forEach(function (factor) {
-                    factor.metrics.forEach(function (metric) {
-                        metrics.push(metric.id);
-                    })
-                });
-                qualityModelSIMetrics.set(strategicIndicator.id, metrics);
-            });
-        }
-    });
-}
-
-
-function buildDecisionVectors (decisionsAdd, decisionsIgnore, strategicIndicatorId) {
-    var metricsForStrategicIndicator = qualityModelSIMetrics.get(strategicIndicatorId);
-    if (metricsForStrategicIndicator) {
-        metricsForStrategicIndicator.forEach(function (metricId) {
-            if (decisions.has(metricId)) {
-                var metricDecisions = decisions.get(metricId);
-                for (var l = 0; l < metricDecisions.length; l++) {
-                    if (metricDecisions[l].type === "ADD") {
-                        decisionsAdd.push({
-                            x: metricDecisions[l].date,
-                            y: 1.1,
-                            requirement: metricDecisions[l].requirement,
-                            comments: metricDecisions[l].comments
-                        });
-                    }
-                    else {
-                        decisionsIgnore.push({
-                            x: metricDecisions[l].date,
-                            y: 1.2,
-                            requirement: metricDecisions[l].requirement,
-                            comments: metricDecisions[l].comments
-                        });
-                    }
-                }
-            }
-        });
-    }
 }
 
 function sortDataAlphabetically (data) {

@@ -2,7 +2,7 @@
 Learning Dashboard is a tool to visualize and monitor the achievement of learning objectives in subjects based on the team development of software projects.
 
 ## Main Functionality
-The main functionalities of the current version of the Learning Dashboard are: providing several ways to visualize and explore the available data, generate predictions of the existing assessments, perform simulations on how the strategic indicators will evolve based on the value of the factors and generate quality requirements to correct deviations on the assessments.
+The main functionalities of the current version of the Learning Dashboard are: providing several ways to visualize and explore the available data, generate predictions of the existing assessments, and perform simulations on how the strategic indicators will evolve based on the value of the factors.
 
 The **User's Guide** is available in the [Wiki](https://github.com/Learning-Dashboard/LD-learning-dashboard/wiki/User-Guide).
 

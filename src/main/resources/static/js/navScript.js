@@ -298,14 +298,8 @@ if ((currentURL.search("/StrategicIndicators/") !== -1 || currentURL.search("/Ed
 } else if (currentURL.search("/QualityAlerts") !== -1) {
     id = "QualityAlerts";
     highlight(id);
-} else if (currentURL.search("/QualityRequirements") !== -1) {
-    id = "QualityRequirements";
-    highlight(id);
 } else if (currentURL.search("/DataProtection") !== -1) {
     id = "DataProtection";
-    highlight(id);
-} else if (currentURL.search("/Decisions") !== -1) {
-    id = "Decisions";
     highlight(id);
 } else if (currentURL.search("/QualityModel") !== -1) {
     id = "QualityModel";
@@ -334,8 +328,6 @@ if ((currentURL.search("/StrategicIndicators/") !== -1 || currentURL.search("/Ed
         id = "Profiles";
     else if (currentURL.match("/Categories"))
         id = "Categories";
-    else if (currentURL.match("/QRPatterns"))
-        id = "QRPatterns";
     else if (currentURL.match("/profile"))
         id = "profile";
     else if (currentURL.match("/users"))
@@ -444,10 +436,6 @@ if ((time == "Current") && (viewMode == "Chart")) {
 
 $("#QualityAlerts").attr("href", serverUrl + "/QualityAlerts");
 
- $("#QualityRequirements").attr("href", serverUrl + "/QualityRequirements");
-
-$("#Decisions").attr("href", serverUrl + "/Decisions");
-
 console.log("qmMode " + qmMode);
 $("#QualityModelAssessment").attr("href", serverUrl + "/QualityModel" + qmMode);
 
@@ -482,8 +470,6 @@ $("#ProfilesConfig").attr("href", serverUrl + "/Profiles/Configuration");
 $("#IterationsConfig").attr("href", serverUrl + "/Iterations/Configuration");
 
 $("#CategoriesConfig").attr("href", serverUrl + "/Categories/Configuration");
-
-$("#QRPatternsConfig").attr("href", serverUrl + "/QRPatterns/Configuration");
 
 $("#UpdatesConfig").attr("href", serverUrl + "/Updates/Configuration");
 
@@ -741,8 +727,6 @@ if(isAdmin=="false") {
     $("#Configuration").hide();
     $("#RawDataAssessment").hide();
     $("#PhasesAssessment").hide();
-    $("#QualityRequirements").hide();
-    $("#Decisions").hide();
     $("#Prediction").hide();
     $("#Reporting").hide();
     $("#MyProfile").hide();

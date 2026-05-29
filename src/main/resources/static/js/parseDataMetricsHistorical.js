@@ -21,7 +21,6 @@ var metricsDB = [];
 let factors = [];
 let students = [];
 var orderedMetricsDB = [];
-var decisions = new Map();
 let rationales = [];
 
 let printMetrics = true;
@@ -118,7 +117,6 @@ function getCurrentProjects() {
 }
 
 function getDatabyFactor() {
-    getDecisions();
     getMetricsDB();
     getFactors();
 
@@ -165,8 +163,6 @@ function getDatabyFactor() {
             j = 0;
             var line = [];
             let rationaleLine = [];
-            var decisionsAdd = [];
-            var decisionsIgnore = [];
             if (data[j]) {
                 last = data[j].id;
                 texts.push(data[j].name);
@@ -176,53 +172,17 @@ function getDatabyFactor() {
             while (data[j]) {
                 //check if we are still on the same metric
                 if (data[j].id != last) {
-                    var val = [line];
-                    if (decisionsAdd.length > 0) {
-                        val.push(decisionsAdd);
-                    }
-                    if (decisionsIgnore.length > 0) {
-                        val.push(decisionsIgnore);
-                    }
-                    value.push(val);
+                    value.push([line]);
                     line = [];
 
                     let rat = [rationaleLine]
                     rationales.push(rat)
                     rationaleLine = [];
 
-                    decisionsAdd = [];
-                    decisionsIgnore = [];
                     last = data[j].id;
                     texts.push(data[j].name);
                     ids.push(data[j].id);
-                    var labelsForOneChart = [];
-                    labelsForOneChart.push(data[j].name);
-                    if (decisions.has(data[j].id)) {
-                        var metricDecisions = decisions.get(data[j].id);
-                        for (var i = 0; i < metricDecisions.length; i++) {
-                            if (metricDecisions[i].type === "ADD") {
-                                decisionsAdd.push({
-                                    x: metricDecisions[i].date,
-                                    y: 1.1,
-                                    requirement: metricDecisions[i].requirement,
-                                    comments: metricDecisions[i].comments
-                                });
-                            }
-                            else {
-                                decisionsIgnore.push({
-                                    x: metricDecisions[i].date,
-                                    y: 1.2,
-                                    requirement: metricDecisions[i].requirement,
-                                    comments: metricDecisions[i].comments
-                                });
-                            }
-                        }
-                        if (decisionsAdd.length > 0)
-                            labelsForOneChart.push("Added decisions");
-                        if (decisionsIgnore.length > 0)
-                            labelsForOneChart.push("Ignored decisions");
-                    }
-                    labels.push(labelsForOneChart);
+                    labels.push([data[j].name]);
                 }
                 //push date and value to line vector
                 if (!isNaN(data[j].value)) {
@@ -236,12 +196,7 @@ function getDatabyFactor() {
             }
             //push line vector to values vector for the last metric
             if (data[j - 1]) {
-                var val = [line];
-                if (decisionsAdd.length > 0)
-                    val.push(decisionsAdd);
-                if (decisionsIgnore.length > 0)
-                    val.push(decisionsIgnore);
-                value.push(val);
+                value.push([line]);
 
                 let rat = [rationaleLine];
                 rationales.push(rat);
@@ -255,7 +210,6 @@ function getDatabyFactor() {
 function getDataStudents() {
 
 
-    getDecisions();
     getMetricsDB();
 
     texts = [];
@@ -287,8 +241,6 @@ function getDataStudents() {
                 j = 0;
                 var line = [];
                 let rationaleLine = [];
-                var decisionsAdd = [];
-                var decisionsIgnore = [];
                 if (data[j]) {
                     last = data[j].id;
                     texts.push(data[j].name);
@@ -298,52 +250,17 @@ function getDataStudents() {
                 while (data[j]) {
                     //check if we are still on the same metric
                     if (data[j].id != last) {
-                        var val = [line];
-                        if (decisionsAdd.length > 0) {
-                            val.push(decisionsAdd);
-                        }
-                        if (decisionsIgnore.length > 0) {
-                            val.push(decisionsIgnore);
-                        }
-                        value.push(val);
+                        value.push([line]);
                         line = [];
 
                         let rat = [rationaleLine]
                         rationales.push(rat)
                         rationaleLine = [];
 
-                        decisionsAdd = [];
-                        decisionsIgnore = [];
                         last = data[j].id;
                         texts.push(data[j].name);
                         ids.push(data[j].id);
-                        var labelsForOneChart = [];
-                        labelsForOneChart.push(data[j].name);
-                        if (decisions.has(data[j].id)) {
-                            var metricDecisions = decisions.get(data[j].id);
-                            for (var i = 0; i < metricDecisions.length; i++) {
-                                if (metricDecisions[i].type === "ADD") {
-                                    decisionsAdd.push({
-                                        x: metricDecisions[i].date,
-                                        y: 1.1,
-                                        requirement: metricDecisions[i].requirement,
-                                        comments: metricDecisions[i].comments
-                                    });
-                                } else {
-                                    decisionsIgnore.push({
-                                        x: metricDecisions[i].date,
-                                        y: 1.2,
-                                        requirement: metricDecisions[i].requirement,
-                                        comments: metricDecisions[i].comments
-                                    });
-                                }
-                            }
-                            if (decisionsAdd.length > 0)
-                                labelsForOneChart.push("Added decisions");
-                            if (decisionsIgnore.length > 0)
-                                labelsForOneChart.push("Ignored decisions");
-                        }
-                        labels.push(labelsForOneChart);
+                        labels.push([data[j].name]);
                     }
                     //push date and value to line vector
 
@@ -357,12 +274,7 @@ function getDataStudents() {
                     ++j;
                 }
                 if (data[j - 1]) {
-                    var val = [line];
-                    if (decisionsAdd.length > 0)
-                        val.push(decisionsAdd);
-                    if (decisionsIgnore.length > 0)
-                        val.push(decisionsIgnore);
-                    value.push(val);
+                    value.push([line]);
 
                     let rat = [rationaleLine];
                     rationales.push(rat);

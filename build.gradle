@@ -108,6 +108,7 @@ dependencies {
 	implementation('org.apache.logging.log4j:log4j-core:2.9.1')
 
 	// Rest API Documentation
+	implementation('org.springdoc:springdoc-openapi-ui:1.3.9')
 	//asciidoctor 'org.springframework.restdocs:spring-restdocs-asciidoctor'
 
 	// Testing
@@ -145,4 +146,3 @@ test {
 		exceptionFormat "full"
 	}
 }
-

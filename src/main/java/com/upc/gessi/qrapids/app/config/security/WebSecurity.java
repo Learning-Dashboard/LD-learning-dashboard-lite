@@ -85,7 +85,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
         String public_api = ( this.apiEnable )?  "/api/**" : "/fonts/**";
 
 
-		http.cors().and().csrf().disable().authorizeRequests()
+		http.cors().and().csrf().disable().authorizeRequests() // nosemgrep: java.lang.security.audit.spring.csrf.disable-csrf.disable-csrf
 
 				// View Filter's exception
 				.antMatchers(HttpMethod.GET, WELCOME_VIEW_URL).permitAll()

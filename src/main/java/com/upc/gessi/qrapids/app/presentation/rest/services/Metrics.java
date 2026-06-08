@@ -138,7 +138,7 @@ public class Metrics {
 
 
 
-    @RequestMapping("/api/metrics/current")
+    @GetMapping("/api/metrics/current")
     @ResponseStatus(HttpStatus.OK)
     public List<DTOMetricEvaluation> getMetricsEvaluations(@RequestParam(value = "prj") String prj, @RequestParam(value = "profile", required = false) String profile) {
         try {
@@ -152,7 +152,7 @@ public class Metrics {
         }
     }
 
-    @RequestMapping("/api/metrics/{id}/current")
+    @GetMapping("/api/metrics/{id}/current")
     @ResponseStatus(HttpStatus.OK)
     public DTOMetricEvaluation getSingleMetricEvaluation(@RequestParam("prj") String prj, @PathVariable String id) {
         try {
@@ -166,7 +166,7 @@ public class Metrics {
         }
     }
 
-    @RequestMapping("/api/metrics/historical")
+    @GetMapping("/api/metrics/historical")
     @ResponseStatus(HttpStatus.OK)
     public List<DTOMetricEvaluation> getMetricsHistoricalData(@RequestParam(value = "prj") String prj, @RequestParam(value = "profile", required = false) String profile, @RequestParam("from") String from, @RequestParam("to") String to) {
         try {
@@ -180,7 +180,7 @@ public class Metrics {
         }
     }
 
-    @RequestMapping("/api/metrics/{id}/historical")
+    @GetMapping("/api/metrics/{id}/historical")
     @ResponseStatus(HttpStatus.OK)
     public List<DTOMetricEvaluation> getHistoricalDataForMetric(@RequestParam(value = "prj") String prj, @RequestParam(value = "profile", required = false) String profile, @PathVariable String id, @RequestParam("from") String from, @RequestParam("to") String to) {
         try {

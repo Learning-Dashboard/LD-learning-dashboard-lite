@@ -8,6 +8,7 @@ import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
@@ -42,7 +43,15 @@ public class IndexController implements ErrorController {
      * @param request
      * @return
      */
-    @RequestMapping(value = PATH)
+    @RequestMapping(value = PATH, method = {
+            RequestMethod.GET,
+            RequestMethod.POST,
+            RequestMethod.PUT,
+            RequestMethod.DELETE,
+            RequestMethod.PATCH,
+            RequestMethod.OPTIONS,
+            RequestMethod.HEAD
+    })
     public ModelAndView error(HttpStatus status, HttpServletRequest request) {
 
         // original requested URI

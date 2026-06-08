@@ -20,9 +20,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestPropertySource(properties = {
         "security.enable=false",
         "security.api.enable=false",
-        "security.jwt.secret=0123456789012345678901234567890123456789012345678901234567890123",
-        "database.encryption.key=0123456789abcdef",
-        "database.encryption.initvector=abcdef9876543210",
+        "security.jwt.secret=test-secret-test-secret-test-secret-test-secret-test-secret-test-secret-",
+        "database.encryption.key=test-test-test-1",
+        "database.encryption.initvector=test-test-test-2",
         "database.encryption.algorithm=AES/CBC/PKCS5Padding",
         "qma.ip=localhost",
         "qma.port=27017",

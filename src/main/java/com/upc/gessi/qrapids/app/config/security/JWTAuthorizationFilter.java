@@ -194,6 +194,7 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
                 // Configuration
                 // Changed HttpOnly to false to read it from the application
                 qrapids_token_client.setHttpOnly(true);
+                qrapids_token_client.setSecure(true);
                 qrapids_token_client.setMaxAge((int) EXPIRATION_COOKIE_TIME / 1000);
                 qrapids_token_client.setPath("/");
 
@@ -245,6 +246,7 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
     private void clearAuthCookie(HttpServletResponse res) {
         Cookie cookie = new Cookie(COOKIE_STRING, null); // Not necessary, but saves bandwidth.
         cookie.setHttpOnly(true);
+        cookie.setSecure(true);
         cookie.setMaxAge(0); // Don't set to -1 or it will become a session cookie!
         cookie.setPath("/");
         res.addCookie(cookie);

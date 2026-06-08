@@ -13,6 +13,7 @@ public class SecurityConstantsTest {
     public void exposesSwaggerDocumentationRoutesPublicly() {
         List<String> publicMatchers = Arrays.asList(SecurityConstants.PUBLIC_MATCHERS);
 
+        assertTrue(publicMatchers.contains("/swagger-ui"));
         assertTrue(publicMatchers.contains("/swagger-ui.html"));
         assertTrue(publicMatchers.contains("/swagger-ui/**"));
         assertTrue(publicMatchers.contains("/v3/api-docs"));

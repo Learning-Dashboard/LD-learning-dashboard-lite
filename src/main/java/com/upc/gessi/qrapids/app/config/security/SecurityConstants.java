@@ -2,10 +2,8 @@ package com.upc.gessi.qrapids.app.config.security;
 
 public class SecurityConstants {
 
-	public static final long EXPIRATION_COOKIE_TIME = 900_000; // 15 minutes (in miliseconds)
-	public static final long EXPIRATION_JWT_TOKEN_TIME = 86_400_000; // 24 hours (in miliseconds)
-	//public static final long EXPIRATION_COOKIE_TIME = 900_000; // 15 minutes (in miliseconds)
-	//public static final long EXPIRATION_JWT_TOKEN_TIME = 86_400_000; // 24 hours (in miliseconds)
+	public static final long EXPIRATION_COOKIE_TIME = 900_000; // 15 minutes (in milliseconds)
+	public static final long EXPIRATION_JWT_TOKEN_TIME = EXPIRATION_COOKIE_TIME;
 
 
 	public static final String TOKEN_PREFIX = "Bearer "; // API header validation

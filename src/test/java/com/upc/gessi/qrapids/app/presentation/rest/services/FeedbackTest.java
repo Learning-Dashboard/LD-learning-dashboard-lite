@@ -193,7 +193,7 @@ public class FeedbackTest {
                         preprocessResponse(prettyPrint())
                 ));
 
-        verifyZeroInteractions(feedbackDomainController);
+        verifyNoInteractions(feedbackDomainController);
     }
 
     @Test

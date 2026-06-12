@@ -105,7 +105,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 		String token = Jwts.builder()
 				.setSubject(((org.springframework.security.core.userdetails.User) auth.getPrincipal()).getUsername())
 				.setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_JWT_TOKEN_TIME))
-				.signWith(SignatureAlgorithm.HS512, authTools.getSigningKey())
+				.signWith(authTools.getSigningKey(), SignatureAlgorithm.HS512)
 				.compact();
 
 		// Request origin

@@ -1,6 +1,12 @@
 buildscript {
 	ext {
-		springBootVersion = '2.1.6.RELEASE'
+		springBootVersion = '2.7.18'
+		jjwtVersion = '0.11.5'
+		gsonVersion = '2.14.0'
+		postgresqlVersion = '42.7.11'
+		mongodbDriverVersion = '4.11.5'
+		commonsIoVersion = '2.22.0'
+		commonsCodecVersion = '1.22.0'
 		snippetsDir = file('build/generated-snippets')
 	}
 	repositories {
@@ -8,7 +14,6 @@ buildscript {
 	}
 	dependencies {
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
-		classpath('org.postgresql:postgresql:42.1.4.jre7')
 		//classpath 'org.asciidoctor:asciidoctor-gradle-plugin:1.5.9.2'
 	}
 }
@@ -27,13 +32,18 @@ apply plugin: 'jacoco'
 
 group = 'com.upc.gessi.qrapids'
 version = '3.3'
-sourceCompatibility = 1.8
+
+java {
+	// The deployed Tomcat image runs on JRE 21; keep WAR bytecode compatible with older JVMs.
+	sourceCompatibility = JavaVersion.VERSION_1_8
+	targetCompatibility = JavaVersion.VERSION_1_8
+}
 
 
 war {
 	from 'README.md'
-	baseName = 'learning-dashboard'
-	version =  version
+	archiveBaseName = 'learning-dashboard'
+	archiveVersion =  project.version
 	webXml = file('src/main/resources/web.xml')
 	from ('src/main/resources') {
 		include 'Logs-servlet.xml'
@@ -43,8 +53,8 @@ war {
 }
 bootWar {
 	from 'README.md'
-	baseName = 'learning-dashboard'
-	version =  version
+	archiveBaseName = 'learning-dashboard'
+	archiveVersion =  project.version
 	webXml = file('src/main/resources/web.xml')
 	from ('src/main/resources') {
 		include 'Logs-servlet.xml'
@@ -64,59 +74,61 @@ repositories {
 	mavenCentral()
 }
 
+configurations.configureEach {
+	exclude group: 'org.apache.logging.log4j'
+}
+
 dependencies {
 
 	// Security
 	implementation("org.springframework.boot:spring-boot-starter-security")
 
 	// JWT
-	implementation("io.jsonwebtoken:jjwt:0.7.0")
+	implementation("io.jsonwebtoken:jjwt-api:${jjwtVersion}")
+	runtimeOnly("io.jsonwebtoken:jjwt-impl:${jjwtVersion}")
+	runtimeOnly("io.jsonwebtoken:jjwt-jackson:${jjwtVersion}")
 
 	// Development
-	implementation('org.springframework.boot:spring-boot-devtools')
+	developmentOnly('org.springframework.boot:spring-boot-devtools')
 
 	// Spring Boot
 	implementation('org.springframework.boot:spring-boot-starter-actuator')
 	implementation('org.springframework.boot:spring-boot-starter-data-jpa')
 	implementation('org.springframework.boot:spring-boot-starter-thymeleaf')
 	implementation('org.springframework.boot:spring-boot-starter-web')
+	implementation('org.springframework.boot:spring-boot-starter-validation')
 
 	// Spring mail
-	implementation 'org.springframework.boot:spring-boot-starter-mail:1.5.8.RELEASE'
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
 
 	// Database JDBC
-	implementation('org.postgresql:postgresql:42.1.4.jre7')
+	runtimeOnly("org.postgresql:postgresql:${postgresqlVersion}")
 
 	// JSON Java Library
-	implementation 'com.google.code.gson:gson:2.8.2'
+	implementation "com.google.code.gson:gson:${gsonVersion}"
 
 	// Socket
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
 	// Utils
-	implementation 'commons-io:commons-io:2.5'
-	implementation 'commons-codec:commons-codec:1.10'
+	implementation "commons-io:commons-io:${commonsIoVersion}"
+	implementation "commons-codec:commons-codec:${commonsCodecVersion}"
 
 	// MongoDB API
-	implementation('org.mongodb:mongodb-driver-sync:3.12.14')
-	implementation('org.mongodb:mongodb-driver-core:3.12.14')
-	implementation('org.mongodb:bson:3.12.14')
+	implementation("org.mongodb:mongodb-driver-sync:${mongodbDriverVersion}")
 	implementation files('libs/LD-qma-mongo-1.0.jar')
-
-	// Logging
-	implementation('org.apache.logging.log4j:log4j-api:2.9.1')
-	implementation('org.apache.logging.log4j:log4j-core:2.9.1')
 
 	// Rest API Documentation
 	//asciidoctor 'org.springframework.restdocs:spring-restdocs-asciidoctor'
 
 	// Testing
 	testImplementation('org.springframework.boot:spring-boot-starter-test')
+	testImplementation('junit:junit:4.13.2')
 	testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
 	testImplementation('com.h2database:h2:1.4.200')
 	// Comment this line to launch application from developing environment
 	// Uncomment this line before generating .war file
-	runtimeOnly 'org.springframework.boot:spring-boot-starter-tomcat'
+	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
 
 }
 
@@ -126,8 +138,8 @@ jacoco {
 
 jacocoTestReport {
 	reports {
-		xml.enabled = true
-		html.enabled = true
+		xml.required = true
+		html.required = true
 	}
 }
 /*
@@ -145,4 +157,3 @@ test {
 		exceptionFormat "full"
 	}
 }
-

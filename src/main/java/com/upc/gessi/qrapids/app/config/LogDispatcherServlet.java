@@ -24,13 +24,13 @@ public class LogDispatcherServlet extends DispatcherServlet {
         String logURL = createLogRequest(request);
         WebApplicationContext context = getWebApplicationContext();
         if (context == null) {
-            logRequest(logURL, null, null);
+            logRequest(logURL, null);
             return;
         }
         AuthTools authTools = context.getBean(AuthTools.class);
         String cookie_token = authTools.getCookieToken( request, COOKIE_STRING );
         String username = authTools.getUser(cookie_token);
-        logRequest(logURL, username, cookie_token);
+        logRequest(logURL, username);
     }
 
     private String createLogRequest(HttpServletRequest request) {
@@ -62,11 +62,11 @@ public class LogDispatcherServlet extends DispatcherServlet {
         else return message;
     }
 
-    private void logRequest(String message, String username, String cookie_token) {
+    private void logRequest(String message, String username) {
         if (username != null) {
             LogFormatUtils.traceDebug(logger, traceOn ->
                     message + ", Action performed by "
-                    + username + " (" + cookie_token + ")");
+                    + username);
         }
         else {
             LogFormatUtils.traceDebug(logger, traceOn ->

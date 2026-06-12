@@ -127,7 +127,9 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 			// Configuration
 			// Changed HttpOnly to false to read it from the application
 			qrapids_token_client.setHttpOnly( true );
+			qrapids_token_client.setSecure( true );
 			qrapids_token_client.setMaxAge(  (int) EXPIRATION_COOKIE_TIME / 1000 );
+			qrapids_token_client.setPath("/");
 
 			res.addCookie( qrapids_token_client );
 			sessionTimer.startTimer(username, token, (int) EXPIRATION_COOKIE_TIME / 1000);

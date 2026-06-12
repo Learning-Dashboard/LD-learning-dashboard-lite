@@ -9,6 +9,7 @@ application.properties
 logs/*
 .gradle-cache/
 .gradle
+gitleaks
 **/build/
 !**/src/**/build/
 

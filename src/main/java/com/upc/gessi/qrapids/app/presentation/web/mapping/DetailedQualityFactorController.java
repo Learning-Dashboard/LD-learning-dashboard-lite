@@ -1,41 +1,41 @@
 package com.upc.gessi.qrapids.app.presentation.web.mapping;
 
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 
 @org.springframework.stereotype.Controller("/DetailedQualityFactor")
 public class DetailedQualityFactorController {
 
-    @RequestMapping("/DetailedQualityFactors/CurrentChart")
+    @GetMapping("/DetailedQualityFactors/CurrentChart")
     public String CurrentChart(){
         return "DetailedQualityFactors/CurrentChart";
     }
 
-    @RequestMapping("/DetailedQualityFactors/CurrentChartRadar")
+    @GetMapping("/DetailedQualityFactors/CurrentChartRadar")
     public String CurrentChartRadar(){
         return "DetailedQualityFactors/CurrentChart";
     }
 
-    @RequestMapping("/DetailedQualityFactors/CurrentChartStacked")
+    @GetMapping("/DetailedQualityFactors/CurrentChartStacked")
     public String CurrentChartStacked(){
         return "DetailedQualityFactors/CurrentStacked";
     }
 
-    @RequestMapping("/DetailedQualityFactors/CurrentChartPolar")
+    @GetMapping("/DetailedQualityFactors/CurrentChartPolar")
     public String CurrentChartPolar(){
         return "DetailedQualityFactors/CurrentPolar";
     }
 
-    @RequestMapping("/DetailedQualityFactors/CurrentTable")
+    @GetMapping("/DetailedQualityFactors/CurrentTable")
     public String CurrentTable(){
         return "DetailedQualityFactors/CurrentTable";
     }
 
-    @RequestMapping("/DetailedQualityFactors/HistoricTable")
+    @GetMapping("/DetailedQualityFactors/HistoricTable")
     public String HistoricTable(){
         return "DetailedQualityFactors/HistoricTable";
     }
 
-    @RequestMapping("/DetailedQualityFactors/HistoricChart")
+    @GetMapping("/DetailedQualityFactors/HistoricChart")
     public String HistoricChart(){
         return "DetailedQualityFactors/HistoricChart";
     }

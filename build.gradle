@@ -119,6 +119,7 @@ dependencies {
 	implementation files('libs/LD-qma-mongo-1.0.jar')
 
 	// Rest API Documentation
+	implementation('org.springdoc:springdoc-openapi-ui:1.3.9')
 	//asciidoctor 'org.springframework.restdocs:spring-restdocs-asciidoctor'
 
 	// Testing

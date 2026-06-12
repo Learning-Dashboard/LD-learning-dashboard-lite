@@ -78,7 +78,7 @@ public class Feedback {
         return dtoFeedbackList;
     }
 
-    @RequestMapping("/api/strategicIndicators/{id}/feedbackReport")
+    @GetMapping("/api/strategicIndicators/{id}/feedbackReport")
     @ResponseStatus(HttpStatus.OK)
     public List<FeedbackFactors> getFeedbackReport(@PathVariable Long id) throws IOException, CategoriesException, ProjectNotFoundException {
         return feedbackController.getFeedbackReport(id);

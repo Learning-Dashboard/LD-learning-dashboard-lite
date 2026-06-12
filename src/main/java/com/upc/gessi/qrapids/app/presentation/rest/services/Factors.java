@@ -312,7 +312,7 @@ public class Factors {
         }
     }
 
-    @RequestMapping("/api/qualityFactors/{id}/metrics/current")
+    @GetMapping("/api/qualityFactors/{id}/metrics/current")
     @ResponseStatus(HttpStatus.OK)
     public List<DTODetailedFactorEvaluation> getMetricsCurrentEvaluationForQualityFactor(@RequestParam(value = "prj") String prj, @PathVariable String id) {
         try {
@@ -333,7 +333,7 @@ public class Factors {
         }
     }
 
-    @RequestMapping("/api/qualityFactors/{id}/metrics/historical")
+    @GetMapping("/api/qualityFactors/{id}/metrics/historical")
     @ResponseStatus(HttpStatus.OK)
     public List<DTODetailedFactorEvaluation> getMetricsHistoricalDataForQualityFactor(@RequestParam(value = "prj") String prj, @PathVariable String id, @RequestParam("from") String from, @RequestParam("to") String to) {
         try {

@@ -312,7 +312,7 @@ public class StrategicIndicators {
     }
 
     // assess Strategic Indicators function legacy
-    @RequestMapping("/api/assessStrategicIndicators")
+    @GetMapping("/api/assessStrategicIndicators")
     @ResponseStatus(HttpStatus.OK)
     public void assesStrategicIndicatorsLegacy(@RequestParam(value = "prj", required=false) String prj,
                                   @RequestParam(value = "from", required=false) String from) {

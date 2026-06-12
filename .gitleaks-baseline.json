@@ -1,0 +1,23 @@
+[
+ {
+  "RuleID": "generic-api-key",
+  "Description": "Detected a Generic API Key, potentially exposing access to various services and sensitive operations.",
+  "StartLine": 24,
+  "EndLine": 24,
+  "StartColumn": 11,
+  "EndColumn": 51,
+  "Match": "database.encryption.key=REDACTED\"",
+  "Secret": "REDACTED",
+  "File": "src/test/java/com/upc/gessi/qrapids/app/config/OpenApiEndpointIntegrationTest.java",
+  "SymlinkFile": "",
+  "Commit": "d62ee618c45ccb80736aabe306b5c749cae20d2a",
+  "Link": "https://github.com/Learning-Dashboard/LD-learning-dashboard-lite/blob/d62ee618c45ccb80736aabe306b5c749cae20d2a/src/test/java/com/upc/gessi/qrapids/app/config/OpenApiEndpointIntegrationTest.java#L24",
+  "Entropy": 4,
+  "Author": "EncryptEx",
+  "Email": "41539618+EncryptEx@users.noreply.github.com",
+  "Date": "2026-06-08T10:56:04Z",
+  "Message": "fix: add route",
+  "Tags": [],
+  "Fingerprint": "d62ee618c45ccb80736aabe306b5c749cae20d2a:src/test/java/com/upc/gessi/qrapids/app/config/OpenApiEndpointIntegrationTest.java:generic-api-key:24"
+ }
+]

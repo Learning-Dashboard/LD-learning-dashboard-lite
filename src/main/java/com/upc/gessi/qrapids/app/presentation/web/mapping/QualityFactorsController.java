@@ -1,31 +1,31 @@
 package com.upc.gessi.qrapids.app.presentation.web.mapping;
 
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 
 @org.springframework.stereotype.Controller("/QualityFactor")
 public class QualityFactorsController {
 
-    @RequestMapping("/QualityFactors/CurrentChart")
+    @GetMapping("/QualityFactors/CurrentChart")
     public String CurrentChart(){
         return "QualityFactors/CurrentChart";
     }
 
-    @RequestMapping("/QualityFactors/CurrentTable")
+    @GetMapping("/QualityFactors/CurrentTable")
     public String CurrentTable(){
         return "QualityFactors/CurrentTable";
     }
 
-    @RequestMapping("/QualityFactors/HistoricTable")
+    @GetMapping("/QualityFactors/HistoricTable")
     public String HistoricTable(){
         return "QualityFactors/HistoricTable";
     }
 
-    @RequestMapping("/QualityFactors/HistoricChart")
+    @GetMapping("/QualityFactors/HistoricChart")
     public String HistoricChart(){
         return "QualityFactors/HistoricChart";
     }
 
-    @RequestMapping("/QualityFactors/Configuration")
+    @GetMapping("/QualityFactors/Configuration")
     public String Config(){
         return "QualityFactors/AdditionalScreens/QualityFactorsConfig";
     }

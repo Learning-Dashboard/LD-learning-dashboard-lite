@@ -34,13 +34,6 @@ public class RoutesFirstLoad {
 
         // Application Route
 
-        // REST - Strategic indicators
-
-        // Changed to the routes the user can NOT acces
-        routes.add( new Route( "REST : Strategic Indicators - Current Evaluation", "/QualityRequirements") );
-
-        routes.add( new Route( "REST : Decisions", "/Decisions") );
-
         routes.add( new Route( "REST : Phases", "/Phases") );
 
         routes.add( new Route( "REST : Products - Configuration", "/Products/Configuration") );
@@ -50,7 +43,6 @@ public class RoutesFirstLoad {
         routes.add( new Route( "REST : Metrics - Configuration", "/Metrics/Configuration#loaded") );
         routes.add( new Route( "REST : Categories - Configuration", "/Categories/Configuration") );
         routes.add( new Route( "REST : Profiles - Configuration", "/Profiles/Configuration") );
-        routes.add( new Route( "REST : QRPatterns - Configuration", "/QRPatterns/Configuration") );
         routes.add( new Route( "REST : Updates - Configuration", "/Updates/Configuration") );
         routes.add( new Route( "REST : profile", "/profile") );
         routes.add( new Route( "REST : users", "/users") );

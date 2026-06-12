@@ -31,9 +31,6 @@ public class Util {
     @Autowired
     private AuthTools authTools;
 
-    @Value("${pabre.url}")
-    private String pabreUrl;
-
     @Value("${server.url}")
     private String serverUrl;
 

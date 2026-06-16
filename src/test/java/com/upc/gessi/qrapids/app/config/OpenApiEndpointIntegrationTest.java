@@ -1,10 +1,13 @@
 package com.upc.gessi.qrapids.app.config;
 
-import com.upc.gessi.qrapids.QrapidsApplication;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.boot.SpringBootConfiguration;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -15,27 +18,19 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = QrapidsApplication.class)
-@AutoConfigureMockMvc
+@SpringBootTest(classes = OpenApiEndpointIntegrationTest.TestApplication.class)
+@AutoConfigureMockMvc(addFilters = false)
 @TestPropertySource(properties = {
-        "security.enable=false",
-        "security.api.enable=false",
-        "security.jwt.secret=test-secret-test-secret-test-secret-test-secret-test-secret-test-secret-",
-        "database.encryption.key=test-test-test-1",
-        "database.encryption.initvector=test-test-test-2",
-        "database.encryption.algorithm=AES/CBC/PKCS5Padding",
-        "qma.ip=localhost",
-        "qma.port=27017",
-        "qma.database.name=test",
-        "qma.username=test",
-        "qma.password=test",
-        "backlog.newIssue.url=http://localhost/issues",
-        "backlog.milestones.url=http://localhost/milestones",
-        "backlog.phases.url=http://localhost/phases",
-        "pabre.url=http://localhost/pabre",
-        "server.url=http://localhost:8080"
+        "spring.main.web-application-type=servlet",
+        "spring.mvc.pathmatch.matching-strategy=ant_path_matcher"
 })
 public class OpenApiEndpointIntegrationTest {
+
+    @SpringBootConfiguration
+    @EnableAutoConfiguration(exclude = MongoAutoConfiguration.class)
+    @Import({OpenApiConfig.class, OpenApiRedirectController.class})
+    static class TestApplication {
+    }
 
     @Resource
     private MockMvc mockMvc;

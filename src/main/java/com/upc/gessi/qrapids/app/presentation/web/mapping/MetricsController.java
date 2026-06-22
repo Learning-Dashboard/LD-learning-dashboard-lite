@@ -1,41 +1,41 @@
 package com.upc.gessi.qrapids.app.presentation.web.mapping;
 
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 
 @org.springframework.stereotype.Controller("/Metrics")
 public class MetricsController {
 
-    @RequestMapping("/Metrics/CurrentChart")
+    @GetMapping("/Metrics/CurrentChart")
     public String CurrentChart(){
         return "Metrics/CurrentChart";
     }
 
-    @RequestMapping("/Metrics/CurrentChartGauge")
+    @GetMapping("/Metrics/CurrentChartGauge")
     public String CurrentChartGauge(){
         return "Metrics/CurrentChart";
     }
 
-    @RequestMapping("/Metrics/CurrentChartSlider")
+    @GetMapping("/Metrics/CurrentChartSlider")
     public String CurrentSlider(){
         return "Metrics/CurrentSlider";
     }
 
-    @RequestMapping("/Metrics/CurrentTable")
+    @GetMapping("/Metrics/CurrentTable")
     public String CurrentTable(){
         return "Metrics/CurrentTable";
     }
 
-    @RequestMapping("/Metrics/HistoricTable")
+    @GetMapping("/Metrics/HistoricTable")
     public String HistoricTable(){
         return "Metrics/HistoricTable";
     }
 
-    @RequestMapping("/Metrics/HistoricChart")
+    @GetMapping("/Metrics/HistoricChart")
     public String HistoricChart(){
         return "Metrics/HistoricChart";
     }
 
-    @RequestMapping("/Metrics/Configuration")
+    @GetMapping("/Metrics/Configuration")
     public String Config(){
         return "Metrics/AdditionalScreens/MetricsConfig";
     }

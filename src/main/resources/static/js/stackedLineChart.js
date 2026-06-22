@@ -5,8 +5,6 @@ var urlTaiga = null;
 var urlGithub = null;
 var urlPrt = null;
 var colors = ['rgb(1, 119, 166)', 'rgb(255, 153, 51)', 'rgb(51, 204, 51)', 'rgb(255, 80, 80)', 'rgb(204, 201, 53)', 'rgb(192, 96, 201)'];
-var decisionIgnoreColor = 'rgb(189,0,0)';
-var decisionAddColor = 'rgb(62,208,62)';
 
 Chart.plugins.register({
     afterDraw: function(chart) {
@@ -251,22 +249,6 @@ function drawChart() {
             var pointRadius = 3;
             var borderWidth = 1;
             var color = colors[j % colors.length];
-            // special logic to show decisions in historical views
-            if (value[i][j][0] && value[i][j][0].y >= 1.1) {
-                showLine = false;
-                pointRadius = 5;
-                borderWidth = 2;
-                // on axis y = 1.1 is shown added decisions
-                if (value[i][j][0].y === 1.1) {
-                    color = decisionAddColor;
-                    pointStyle = 'cross';
-                }
-                // on axis y = 1.2 is shown ignored decisions
-                if (value[i][j][0].y === 1.2) {
-                    color = decisionIgnoreColor;
-                    pointStyle = 'crossRot';
-                }
-            }
             console.log("data");
             console.log(value[i][j]);
             c.data.datasets.push({
@@ -288,19 +270,6 @@ function drawChart() {
             });
 
             if(typeof rationales !== 'undefined') c.data.datasets[0]['rationale'] = rationales[i][j]
-
-            if (!showLine) {
-                c.options.tooltips.callbacks = {
-                    label: function (tooltipItems, data) {
-                        var posY = data.datasets[tooltipItems.datasetIndex].data[0].y;
-                        if (posY === 1.1 || posY === 1.2) {
-                            return "<b>Requirement: </b>" + data.datasets[tooltipItems.datasetIndex].data[tooltipItems.index].requirement + "<br/>" +
-                                "<b>Comments: </b>" + data.datasets[tooltipItems.datasetIndex].data[tooltipItems.index].comments;
-                        } else
-                            return data.datasets[tooltipItems.datasetIndex].label + ': ' + tooltipItems.yLabel;
-                    }
-                };
-            }
 
             if (typeof errors !== 'undefined') {
                 c.data.errors.push(errors[i][j]);
@@ -696,4 +665,3 @@ function normalRange() {
         chart.update();
     });
 }
-

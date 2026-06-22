@@ -1,46 +1,46 @@
 package com.upc.gessi.qrapids.app.presentation.web.mapping;
 
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 
 @org.springframework.stereotype.Controller("/DetailedStrategicIndicators")
 public class DetailedStrategicIndicatorsController {
 
-    @RequestMapping("/DetailedStrategicIndicators/CurrentChart")
+    @GetMapping("/DetailedStrategicIndicators/CurrentChart")
     public String CurrentChart(){
         return "DetailedStrategicIndicators/CurrentChart";
     }
 
-    @RequestMapping("/DetailedStrategicIndicators/CurrentChartRadar")
+    @GetMapping("/DetailedStrategicIndicators/CurrentChartRadar")
     public String CurrentChartRadar(){
         return "DetailedStrategicIndicators/CurrentChart";
     }
 
-    @RequestMapping("/DetailedStrategicIndicators/CurrentChartStacked")
+    @GetMapping("/DetailedStrategicIndicators/CurrentChartStacked")
     public String CurrentChartStacked(){
         return "DetailedStrategicIndicators/CurrentStacked";
     }
 
-    @RequestMapping("/DetailedStrategicIndicators/CurrentChartPolar")
+    @GetMapping("/DetailedStrategicIndicators/CurrentChartPolar")
     public String CurrentChartPolar(){
         return "DetailedStrategicIndicators/CurrentPolar";
     }
 
-    @RequestMapping("/DetailedStrategicIndicators/CurrentChartBar")
+    @GetMapping("/DetailedStrategicIndicators/CurrentChartBar")
     public String CurrentChartBar(){
         return "DetailedStrategicIndicators/CurrentBar";
     }
 
-    @RequestMapping("/DetailedStrategicIndicators/CurrentTable")
+    @GetMapping("/DetailedStrategicIndicators/CurrentTable")
     public String CurrentTable(){
         return "DetailedStrategicIndicators/CurrentTable";
     }
 
-    @RequestMapping("/DetailedStrategicIndicators/HistoricTable")
+    @GetMapping("/DetailedStrategicIndicators/HistoricTable")
     public String HistoricTable(){
         return "DetailedStrategicIndicators/HistoricTable";
     }
 
-    @RequestMapping("/DetailedStrategicIndicators/HistoricChart")
+    @GetMapping("/DetailedStrategicIndicators/HistoricChart")
     public String HistoricChart(){
         return "DetailedStrategicIndicators/HistoricChart";
     }

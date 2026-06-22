@@ -26,8 +26,8 @@ public class ActionLogger {
             traceSessionAction(userId, TIMEOUT, cookie_token);
          }
 
-         public void traceSessionAction(String userId, String action, String sessionId) {
-             logger.info("{} {} ({})", userId, action, sessionId);
+         public void traceSessionAction(String userId, String action, String ignoredSessionId) {
+             logger.info("{} {}", userId, action);
          }
 
 }

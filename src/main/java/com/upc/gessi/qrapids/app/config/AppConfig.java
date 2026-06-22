@@ -32,6 +32,9 @@ public class AppConfig {
 	@Value("${spring.jpa.database-platform}")
 	private String dialect;
 
+	@Value("${learning-dashboard.jpa.show-sql:${spring.jpa.show-sql:false}}")
+	private boolean showSql;
+
 
     @Bean
 	@Primary
@@ -49,7 +52,7 @@ public class AppConfig {
 	public JpaVendorAdapter jpaVendorAdapter() {
 		HibernateJpaVendorAdapter jpaVendorAdapter = new HibernateJpaVendorAdapter();
 		jpaVendorAdapter.setGenerateDdl(true);
-		jpaVendorAdapter.setShowSql(true);
+		jpaVendorAdapter.setShowSql(showSql);
 		jpaVendorAdapter.setDatabasePlatform( this.dialect );
 		return jpaVendorAdapter;
 	}
@@ -62,7 +65,7 @@ public class AppConfig {
 		lef.setJpaVendorAdapter(jpaVendorAdapter());
 
 		Properties properties = new Properties();
-		properties.setProperty("hibernate.show_sql", "true");
+		properties.setProperty("hibernate.show_sql", String.valueOf(showSql));
 		properties.setProperty("hibernate.jdbc.fetch_size", "100");
 		properties.setProperty("hibernate.hbm2ddl.auto", "update");
 

@@ -2,14 +2,13 @@ package com.upc.gessi.qrapids.app.config.security;
 
 public class SecurityConstants {
 
-	public static final long EXPIRATION_COOKIE_TIME = 900_000; // 15 minutes (in miliseconds)
-	public static final long EXPIRATION_JWT_TOKEN_TIME = 86_400_000; // 24 hours (in miliseconds)
-	//public static final long EXPIRATION_COOKIE_TIME = 900_000; // 15 minutes (in miliseconds)
-	//public static final long EXPIRATION_JWT_TOKEN_TIME = 86_400_000; // 24 hours (in miliseconds)
+	public static final long EXPIRATION_COOKIE_TIME = 900_000; // 15 minutes (in milliseconds)
+	public static final long EXPIRATION_JWT_TOKEN_TIME = EXPIRATION_COOKIE_TIME;
 
 
 	public static final String TOKEN_PREFIX = "Bearer "; // API header validation
 	public static final String HEADER_STRING = "Authorization"; // Request header
+	public static final String LD_API_KEY_HEADER = "X-LD-API-Key"; // Service-to-service API key header
 	public static final String COOKIE_STRING = "xFOEto4jYAjdMeR3Pas6_"; // hashed name cookie
 
     /**
@@ -32,6 +31,13 @@ public class SecurityConstants {
 			"/bootstrap.min.css",
 			"/favicon.ico",
 			"/styles.css",
+			"/swagger-ui",
+			"/swagger-ui.html",
+			"/swagger-ui/**",
+			"/v3/api-docs",
+			"/v3/api-docs/**",
+			"/swagger-resources/**",
+			"/webjars/**",
 
 			// Public routes
 

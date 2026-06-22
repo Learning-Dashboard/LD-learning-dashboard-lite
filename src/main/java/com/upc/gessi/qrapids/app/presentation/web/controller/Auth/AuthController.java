@@ -134,7 +134,9 @@ public class AuthController {
 
 		Cookie cookie = new Cookie(COOKIE_STRING, null); // Not necessary, but saves bandwidth.
 		cookie.setHttpOnly(true);
+		cookie.setSecure(true);
 		cookie.setMaxAge(0); // Don't set to -1 or it will become a session cookie!
+		cookie.setPath("/");
 		response.addCookie(cookie);
 
 		return "redirect:/login";

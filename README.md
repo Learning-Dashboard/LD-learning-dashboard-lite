@@ -2,7 +2,7 @@
 Learning Dashboard is a tool to visualize and monitor the achievement of learning objectives in subjects based on the team development of software projects.
 
 ## Main Functionality
-The main functionalities of the current version of the Learning Dashboard are: providing several ways to visualize and explore the available data, generate predictions of the existing assessments, perform simulations on how the strategic indicators will evolve based on the value of the factors and generate quality requirements to correct deviations on the assessments.
+The main functionalities of the current version of the Learning Dashboard are: providing several ways to visualize and explore the available data, generate predictions of the existing assessments, and perform simulations on how the strategic indicators will evolve based on the value of the factors.
 
 The **User's Guide** is available in the [Wiki](https://github.com/Learning-Dashboard/LD-learning-dashboard/wiki/User-Guide).
 
@@ -48,10 +48,10 @@ When this project is deployed from the parent `learning-dashboard-infraestructur
 In the current setup, Docker Compose rebuilds the `tomcat` Docker image from the parent `node-tomcat/dockerfile`, but that Dockerfile only defines the Tomcat base image:
 
 ```dockerfile
-FROM tomcat:9.0.16-jre8
+FROM tomcat:9.0.118-jre21-temurin
 ```
 
-It does not run Gradle, compile this project, or generate `learning-dashboard-3.3.war`. The parent Compose file also mounts Tomcat webapps from the host:
+Tomcat stays on the 9.x line because the application still uses the `javax.*` Servlet/JPA/Validation APIs. Moving to Tomcat 10.x would require a separate Jakarta migration. The Dockerfile does not run Gradle, compile this project, or generate `learning-dashboard-3.3.war`. The parent Compose file also mounts Tomcat webapps from the host:
 
 ```yaml
 ${COMPOSE_PROJECT_HOME}/www/api/public:/usr/local/tomcat/webapps
@@ -68,7 +68,7 @@ After changing Java code in this repository, rebuild and redeploy the WAR explic
 ```bash
 cd LD-learning-dashboard-lite
 
-GRADLE_USER_HOME=.gradle-cache ./gradlew bootWar -x test --no-daemon
+GRADLE_USER_HOME=.gradle-cache ./gradlew bootWar -x test --no-daemon --no-watch-fs
 
 cd ..
 

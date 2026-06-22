@@ -15,10 +15,10 @@ There are several ways for rangeRover plugin installation:
 
 + download and unpack zip file from [github repository](https://github.com/styopdev/rangeRover).
 
-Load the latest version of jQuery library and plugin's files from dist folder in the html document.
+Load the bundled jQuery library and plugin's files from dist folder in the html document.
 
 ```
-<script type="text/javascript" src="//code.jquery.com/jquery-latest.min.js"></script>
+<script type="text/javascript" src="/js/lib/jquery.min.js"></script>
 <script type="text/javascript" src="rangeRover/dist/jquery.rangerover.min.js"></script>
 <link rel="stylesheet" href="rangeRover/dist/jquery.rangerover.min.css">
 ```

@@ -3,7 +3,6 @@ package com.upc.gessi.qrapids.app.domain.adapters.QMA;
 import DTOs.EvaluationDTO;
 import DTOs.MetricEvaluationDTO;
 import com.upc.gessi.qrapids.app.config.QMAConnection;
-import com.upc.gessi.qrapids.app.domain.controllers.MetricsController;
 import com.upc.gessi.qrapids.app.domain.controllers.ProfilesController;
 import com.upc.gessi.qrapids.app.domain.controllers.StudentsController;
 import com.upc.gessi.qrapids.app.domain.models.Profile;
@@ -15,6 +14,7 @@ import com.upc.gessi.qrapids.app.domain.repositories.Project.ProjectRepository;
 import com.upc.gessi.qrapids.app.domain.repositories.QualityFactor.QualityFactorRepository;
 import com.upc.gessi.qrapids.app.presentation.rest.dto.DTOMetricEvaluation;
 import com.upc.gessi.qrapids.app.presentation.rest.dto.DTOStudent;
+import com.upc.gessi.qrapids.app.presentation.rest.dto.DTOStudentIdentity;
 import evaluation.Factor;
 import evaluation.Metric;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,9 +32,6 @@ public class QMAMetrics {
 
     @Autowired
     private QMAConnection qmacon;
-
-    @Autowired
-    private MetricsController metricsController;
 
     @Autowired
     private StudentsController studentsController;
@@ -207,7 +204,12 @@ public class QMAMetrics {
         if(project != null) {
             List<DTOStudent> students = studentsController.getStudentsDTOFromProject(project.getId());
             Map<Long,String> normalizedNames = studentsController.getNormalizedNamesByProject(project);
-            metricsController.normalizeMetricsEvaluation(m, students, normalizedNames);
+            m.forEach(metric -> {
+                students.forEach(student -> {
+                    List<DTOStudentIdentity> studentIdentities = new ArrayList<>(student.getIdentities().values());
+                    metric.setName(studentsController.normalizedName(metric.getName(), studentIdentities, normalizedNames.get(student.getId())));
+                });
+            });
         }
     }
 

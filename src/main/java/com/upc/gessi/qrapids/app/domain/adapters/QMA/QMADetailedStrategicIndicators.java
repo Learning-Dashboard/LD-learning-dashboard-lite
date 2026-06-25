@@ -21,6 +21,7 @@ import com.upc.gessi.qrapids.app.presentation.rest.dto.DTOFactorEvaluation;
 import com.upc.gessi.qrapids.app.presentation.rest.dto.DTOAssessment;
 import evaluation.StrategicIndicator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Component;
 
@@ -55,9 +56,11 @@ public class QMADetailedStrategicIndicators {
     @Autowired
     private StrategicIndicatorRepository siRep;
 
+    @Lazy
     @Autowired
     private StrategicIndicatorsController strategicIndicatorsController;
 
+    @Lazy
     @Autowired
     FactorsController factorsController;
 

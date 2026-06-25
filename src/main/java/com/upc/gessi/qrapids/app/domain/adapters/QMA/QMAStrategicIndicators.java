@@ -24,6 +24,7 @@ import com.upc.gessi.qrapids.app.presentation.rest.services.helpers.Messages;
 import evaluation.StrategicIndicator;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Component;
 import util.Queries;
@@ -52,6 +53,7 @@ public class QMAStrategicIndicators {
     @Autowired
     private FeedbackRepository feedbackRepository;
 
+    @Lazy
     @Autowired
     private StrategicIndicatorsController strategicIndicatorsController;
 

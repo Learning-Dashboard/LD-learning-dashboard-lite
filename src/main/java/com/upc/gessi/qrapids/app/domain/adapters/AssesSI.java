@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
@@ -26,6 +27,7 @@ import java.util.Map;
 @Component
 public class AssesSI {
 
+    @Lazy
     @Autowired
     private StrategicIndicatorsController strategicIndicatorsController;
 

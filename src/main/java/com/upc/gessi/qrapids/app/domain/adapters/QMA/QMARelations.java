@@ -17,6 +17,7 @@ import com.upc.gessi.qrapids.app.presentation.rest.dto.relations.DTORelationsMet
 import com.upc.gessi.qrapids.app.presentation.rest.dto.relations.DTORelationsSI;
 import evaluation.Relations;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Component;
 
@@ -33,9 +34,11 @@ public class QMARelations {
     @Autowired
     private QMAConnection qmacon;
 
+    @Lazy
     @Autowired
     private StrategicIndicatorsController strategicIndicatorsController;
 
+    @Lazy
     @Autowired
     private FactorsController factorsController;
 

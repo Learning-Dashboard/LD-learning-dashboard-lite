@@ -25,6 +25,7 @@ import org.springframework.data.util.Pair;
 import evaluation.StrategicIndicator;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import util.Queries;
 
@@ -59,6 +60,7 @@ public class QMAQualityFactors {
     @Autowired
     private MetricsController metricsController;
 
+    @Lazy
     @Autowired
     private FactorsController factorsController;
 

@@ -9,6 +9,7 @@ import com.upc.gessi.qrapids.app.domain.repositories.StudentIdentity.StudentIden
 import com.upc.gessi.qrapids.app.domain.utils.AnonymizationModes;
 import com.upc.gessi.qrapids.app.presentation.rest.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -27,6 +28,7 @@ public class StudentsController {
     @Autowired
     private StudentIdentityRepository studentIdentityRepository;
 
+    @Lazy
     @Autowired
     private QMAMetrics qmaMetrics;
 
